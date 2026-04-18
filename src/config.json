@@ -1,6 +1,0 @@
-{
-    "port": 30128,
-    "dataDir": "./data/chats",
-    "sessionGapMinutes": 1,
-    "showChatsFrom": 60
-}

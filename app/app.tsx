@@ -1,5 +1,14 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
+import { useEffect, useState } from 'react';
+import type { Settings } from '../src/settings';
+import { ChatOverview } from './pages/chatoverview';
+import { Onboarding } from './pages/onboarding';
 
-const root = createRoot(document.body);
-root.render(<h2>Hello from React!</h2>);
+export function App() {
+    const [settings, setSettings] = useState<Settings | null>(null);
+
+    useEffect(() => {
+        window.api.getSettings().then(setSettings);
+    }, []);
+
+    return settings?.onboardingCompleted ? <ChatOverview /> : <Onboarding />;
+}

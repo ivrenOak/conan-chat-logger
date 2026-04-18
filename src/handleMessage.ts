@@ -1,4 +1,4 @@
-import config from './config.json';
+import { getSettings } from './settings';
 import { promises as fs } from 'fs';
 import path from 'node:path';
 
@@ -14,12 +14,12 @@ export async function saveMessage(sender: string | undefined, message: string | 
     }
 
     const safeSender = sender.replace(/\W/g, '');
-    const files = await fs.readdir(config.dataDir);
+    const files = await fs.readdir(getSettings().dataDir);
 
     const latestSession = (
         await Promise.all(
             files.map(async (name) => {
-                const fullPath = path.join(config.dataDir, name);
+                const fullPath = path.join(getSettings().dataDir, name);
                 const stat = await fs.stat(fullPath);
                 return { name, path: fullPath, time: stat.mtimeMs };
             }),
@@ -34,9 +34,9 @@ export async function saveMessage(sender: string | undefined, message: string | 
         message,
     };
 
-    if (latestSession === null || timestamp.getTime() - latestSession.time > config.sessionGapMinutes * 60 * 1000) {
+    if (latestSession === null || timestamp.getTime() - latestSession.time > getSettings().sessionGapMinutes * 60 * 1000) {
         const newSessionPath = createSessionPath(files, [safeSender], date);
-        await fs.writeFile(newSessionPath, JSON.stringify([entry], null, 2), 'utf8');
+        await fs.writeFile(newSessionPath, JSON.stringify([entry], undefined, 2), 'utf8');
         return;
     } else {
         const existingContent = await fs.readFile(latestSession.path, 'utf8');
@@ -51,7 +51,7 @@ export async function saveMessage(sender: string | undefined, message: string | 
             await fs.rename(latestSession.path, sessionPath);
         }
 
-        await fs.writeFile(sessionPath, JSON.stringify(parsed, null, 2), 'utf8');
+        await fs.writeFile(sessionPath, JSON.stringify(parsed, undefined, 2), 'utf8');
     }
 }
 
@@ -62,5 +62,5 @@ function createSessionPath(files: string[], senders: string[], date: string): st
         sessionName = `${date}(${counter})-${senders.join('-')}.json`;
         counter++;
     }
-    return path.join(config.dataDir, sessionName);
+    return path.join(getSettings().dataDir, sessionName);
 }
