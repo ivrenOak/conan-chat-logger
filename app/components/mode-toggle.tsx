@@ -22,13 +22,13 @@ export function ModeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
+        <DropdownMenuItem onClick={() => { window.api.setSettings({ theme: "light" }); setTheme("light") }}>
           Light
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
+        <DropdownMenuItem onClick={() => { window.api.setSettings({ theme: "dark" }); setTheme("dark") }}>
           Dark
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
+        <DropdownMenuItem onClick={() => { window.api.setSettings({ theme: "system" }); setTheme("system") }}>
           System
         </DropdownMenuItem>
       </DropdownMenuContent>

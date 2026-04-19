@@ -7,7 +7,7 @@ import menuScreenshot from '../../public/menu.png';
 import sudoexileScreenshot from '../../public/sudoexile.png';
 import webhookScreenshot from '../../public/webhook.png';
 import { Input } from "@/components/ui/input";
-import { Field, FieldLabel, FieldDescription, FieldError } from "@/components/ui/field";
+import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function Onboarding(props: { settings: Settings, setSettings: (settings: Settings) => void }) {
@@ -100,7 +100,8 @@ export function Onboarding(props: { settings: Settings, setSettings: (settings: 
     ];
 
     return (
-        <ScrollArea>
+        <div className="flex h-screen w-full flex-col items-center justify-center">
+            <ScrollArea>
             <Card className="mx-auto w-fit min-w-sm max-w-full">
                 <CardHeader>
                     <div className="mb-4 flex items-center justify-end space-x-4">
@@ -149,6 +150,7 @@ export function Onboarding(props: { settings: Settings, setSettings: (settings: 
                     </div>
                 </CardFooter>
             </Card>
-        </ScrollArea>
+            </ScrollArea>
+        </div>
     );
 }

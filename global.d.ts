@@ -9,6 +9,8 @@ declare global {
             getSettings: () => Promise<Settings>;
             setSettings: (settings: Partial<Settings>) => Promise<void>;
             showOpenDialog: (options: OpenDialogOptions) => Promise<OpenDialogReturnValue>;
+            getSessions: () => Promise<Session[]>;
+            getCurrentSessionData: (filename: string) => Promise<ChatEntry[]>;
         };
     }
 }

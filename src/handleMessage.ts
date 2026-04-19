@@ -2,7 +2,7 @@ import { getSettings } from './settings';
 import { promises as fs } from 'fs';
 import path from 'node:path';
 
-type ChatEntry = {
+export type ChatEntry = {
     timestamp: string;
     sender: string;
     message: string;

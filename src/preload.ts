@@ -8,4 +8,6 @@ contextBridge.exposeInMainWorld('api', {
     getSettings: () => ipcRenderer.invoke('get-settings'),
     setSettings: (settings: Partial<Settings>) => ipcRenderer.invoke('set-settings', settings),
     showOpenDialog: (options: OpenDialogOptions) => ipcRenderer.invoke('show-open-dialog', options),
+    getSessions: () => ipcRenderer.invoke('get-sessions'),
+    getCurrentSessionData: (filename: string) => ipcRenderer.invoke('get-current-session-data', filename),
 });

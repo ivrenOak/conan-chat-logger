@@ -15,8 +15,6 @@ export function App() {
         return <div>Loading...</div>;
     }
 
-    console.log(settings);
-
     return (
         <ThemeProvider defaultTheme="system">
             {settings?.onboardingCompleted ? <ChatOverview /> : <Onboarding settings={settings!} setSettings={setSettings} />}

@@ -5,6 +5,7 @@ export interface Settings {
     dataDir: string;
     port: number;
     onboardingCompleted: boolean;
+    theme: 'light' | 'dark' | 'system';
 }
 
 let settings: Settings = {
@@ -12,6 +13,7 @@ let settings: Settings = {
     dataDir: './conan-chats',
     port: 30128,
     onboardingCompleted: false,
+    theme: 'system',
 };
 
 export async function loadSettings() {
@@ -31,7 +33,27 @@ export function getSettings() {
     return settings;
 }
 
+function assertValidSettings(s: Settings): void {
+    if (typeof s.sessionGapMinutes !== 'number' || !Number.isFinite(s.sessionGapMinutes) || s.sessionGapMinutes <= 0) {
+        console.error('sessionGapMinutes must be a positive number');
+    }
+    if (typeof s.dataDir !== 'string' || s.dataDir.trim() === '') {
+        console.error('dataDir must be a non-empty string');
+    }
+    if (typeof s.port !== 'number' || !Number.isInteger(s.port) || s.port < 1 || s.port > 65535) {
+        console.error('port must be an integer between 1 and 65535');
+    }
+    if (typeof s.onboardingCompleted !== 'boolean') {
+        console.error('onboardingCompleted must be a boolean');
+    }
+    if (s.theme !== 'light' && s.theme !== 'dark' && s.theme !== 'system') {
+        console.error('theme must be "light", "dark", or "system"');
+    }
+}
+
 export async function setSettings(newSettings: Partial<Settings>) {
-    settings = { ...settings, ...newSettings };
+    const merged: Settings = { ...settings, ...newSettings };
+    assertValidSettings(merged);
+    settings = merged;
     await saveSettings();
 }
