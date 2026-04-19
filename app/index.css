@@ -128,3 +128,7 @@
     @apply font-sans;
     }
 }
+
+body, #app {
+    @apply flex flex-col items-center justify-center h-screen;
+}

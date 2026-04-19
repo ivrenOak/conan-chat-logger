@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Settings } from '../src/settings';
 import { ChatOverview } from './pages/chatoverview';
 import { Onboarding } from './pages/onboarding';
+import { ThemeProvider } from './components/theme-provider';
 
 export function App() {
     const [settings, setSettings] = useState<Settings | null>(null);
@@ -10,5 +11,15 @@ export function App() {
         window.api.getSettings().then(setSettings);
     }, []);
 
-    return settings?.onboardingCompleted ? <ChatOverview /> : <Onboarding />;
+    if (!settings) {
+        return <div>Loading...</div>;
+    }
+
+    console.log(settings);
+
+    return (
+        <ThemeProvider defaultTheme="system">
+            {settings?.onboardingCompleted ? <ChatOverview /> : <Onboarding settings={settings!} setSettings={setSettings} />}
+        </ThemeProvider>
+    );
 }

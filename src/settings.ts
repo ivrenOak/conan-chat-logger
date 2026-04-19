@@ -3,15 +3,13 @@ import { promises as fs } from 'fs';
 export interface Settings {
     sessionGapMinutes: number;
     dataDir: string;
-    showChatsFrom: number;
     port: number;
     onboardingCompleted: boolean;
 }
 
 let settings: Settings = {
-    sessionGapMinutes: 120,
+    sessionGapMinutes: 60,
     dataDir: './conan-chats',
-    showChatsFrom: 60,
     port: 30128,
     onboardingCompleted: false,
 };

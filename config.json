@@ -1,8 +1,0 @@
-{
-  "sessionGapMinutes": 120,
-  "dataDir": "./data/chats",
-  "showChatsFrom": 60,
-  "port": 30128,
-  "theme": "dark",
-  "onboardingCompleted": false
-}
