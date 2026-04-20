@@ -1,19 +1,24 @@
-import { AppSidebar } from "@/components/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import type { DateSessions } from "src/handler/handleSessions";
-import type { ChatEntry } from "src/handleMessage";
+import type { SessionData } from "src/handleMessage";
+import { MessageItem } from "@/components/message-item";
+import { TitleDialog } from "@/components/title-dialog";
 
 export function ChatOverview() {
     const [sessions, setSessions] = useState<DateSessions[]>([]);
     const [currentSessionFile, setCurrentSessionFile] = useState<string>();
-    const [currentSessionData, setCurrentSessionData] = useState<ChatEntry[]>();
+    const [currentSessionData, setCurrentSessionData] = useState<SessionData>();
+    const currentEntries = currentSessionData?.entries ?? [];
+
 
     useEffect(() => {
         if (currentSessionFile) {
-            window.api.getCurrentSessionData(currentSessionFile).then((data) => setCurrentSessionData(data));
+            window.api.getCurrentSessionData(currentSessionFile).then((data) => {
+                setCurrentSessionData(data);
+            });
         }
     }, [currentSessionFile]);
 
@@ -21,23 +26,47 @@ export function ChatOverview() {
         window.api.getSessions().then(setSessions);
     }, []);
 
+
     return (
         <SidebarProvider>
           <AppSidebar sessions={sessions} currentSessionFile={currentSessionFile} setCurrentSessionFile={setCurrentSessionFile} />
           <SidebarInset>
-            <header className="flex h-16 shrink-0 items-center gap-2 border-b">
-              <div className="flex items-center gap-2 px-3">
-                <SidebarTrigger />
-                <p className="text-lg font-semibold">{currentSessionData ? currentSessionData[0].timestamp : 'No session selected'}</p>
-                <ModeToggle />
+            <header className="flex min-h-16 w-full shrink-0 items-center justify-between gap-2 border-b px-3 py-2">
+              <SidebarTrigger />
+              <div className="flex min-w-0 items-start gap-2">
+                <div className="min-w-0">
+                  <p className="flex items-center gap-1 text-lg font-semibold">
+                    {currentSessionData?.session.title ? currentSessionData.session.title : "No session selected"}
+                    {currentSessionData?.session.title && currentSessionFile && (
+                      <TitleDialog
+                        titleValue={currentSessionData.session.title}
+                        setTitleValue={(value: string) =>
+                          window.api
+                            .setSessionTitle(currentSessionFile, value)
+                            .then(() => window.api.getCurrentSessionData(currentSessionFile))
+                            .then((data) => setCurrentSessionData(data))
+                            .catch((error) => console.error(error))
+                        }
+                      />
+                    )}                  </p>
+                    <p
+                      className="text-sm text-muted-foreground overflow-hidden"
+                      title={currentEntries.length > 0 ? [...new Set(currentEntries.map((entry) => entry.sender))].join(', ') : undefined}
+                      style={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                      }}
+                    >
+                      {currentEntries.length > 0 && [...new Set(currentEntries.map((entry) => entry.sender))].join(', ')}
+                    </p>
+                </div>
               </div>
+              <ModeToggle />
             </header>
-            <Card>
-                <CardHeader>Current Session	</CardHeader>
-                <CardContent>
-                    <pre>{JSON.stringify(currentSessionData, null, 2)}</pre>
-                </CardContent>
-            </Card>
+            <div className="p-4">
+              <MessageItem entries={currentEntries} />
+            </div>
           </SidebarInset>
         </SidebarProvider>
       )

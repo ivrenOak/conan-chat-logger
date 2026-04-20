@@ -40,8 +40,14 @@ export function AppSidebar({ sessions, currentSessionFile, setCurrentSessionFile
                   <SidebarMenuSub>
                     {item.sessions.map((session: DateSessions["sessions"][number]) => (
                       <SidebarMenuSubItem key={session.filename}>
-                        <SidebarMenuSubButton isActive={currentSessionFile === session.filename} onClick={() => setCurrentSessionFile(session.filename)}>
-                          {session.senders.join(', ')}
+                        <SidebarMenuSubButton
+                          isActive={currentSessionFile === session.filename}
+                          onClick={() => setCurrentSessionFile(session.filename)}
+                          title={session.senders.join(", ")}
+                        >
+                          <span className="block w-full truncate whitespace-nowrap">
+                            {session.senders.join(", ")}
+                          </span>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}

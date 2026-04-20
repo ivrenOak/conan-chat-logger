@@ -2,7 +2,7 @@ import { ipcMain } from 'electron';
 import { getSettings } from '../settings';
 import { promises as fs } from 'fs';
 import path from 'path';
-import type { ChatEntry } from '../handleMessage';
+import type { SessionData } from '../handleMessage';
 
 export type DateSessions = {
     date: string;
@@ -45,15 +45,36 @@ ipcMain.handle('get-sessions', async () => {
 });
 
 ipcMain.handle('get-current-session-data', async (event, filename: string) => {
-    const files = await fs.readdir(getSettings().dataDir);
-
-    const currentSessionFile = files.find((file) => file === filename);
-    if (!currentSessionFile) {
+    if (!await checkSessionFileExists(filename)) {
         console.error('Session file not found');
         return undefined;
     }
-    const data = await fs.readFile(path.join(getSettings().dataDir, currentSessionFile), 'utf8');
-    return JSON.parse(data) as ChatEntry[];
+    const data = await fs.readFile(path.join(getSettings().dataDir, filename), 'utf8');
+    return JSON.parse(data) as SessionData;
+});
+
+ipcMain.handle('set-session-notes', async (event, filename: string, notes: string) => {
+    if (!await checkSessionFileExists(filename)) {
+        console.error('Session file not found');
+        return;
+    }
+
+    const data = await fs.readFile(path.join(getSettings().dataDir, filename), 'utf8');
+    const parsed = JSON.parse(data) as SessionData;
+    parsed.session.notes = notes;
+    await fs.writeFile(path.join(getSettings().dataDir, filename), JSON.stringify(parsed, undefined, 2), 'utf8');
+});
+
+ipcMain.handle('set-session-title', async (event, filename: string, title: string) => {
+    if (!await checkSessionFileExists(filename)) {
+        console.error('Session file not found');
+        return;
+    }
+
+    const data = await fs.readFile(path.join(getSettings().dataDir, filename), 'utf8');
+    const parsed = JSON.parse(data) as SessionData;
+    parsed.session.title = title;
+    await fs.writeFile(path.join(getSettings().dataDir, filename), JSON.stringify(parsed, undefined, 2), 'utf8');
 });
 
 function parseYYYYMMDD(dateStr: string): string {
@@ -66,4 +87,13 @@ function parseYYYYMMDD(dateStr: string): string {
     const day = Number(dateStr.slice(6, 8));
 
     return new Date(year, month, day).toLocaleDateString();
+}
+
+async function checkSessionFileExists(filename: string): Promise<boolean> {
+    try {
+        await fs.access(path.join(getSettings().dataDir, filename));
+        return true;
+    } catch {
+        return false;
+    }
 }

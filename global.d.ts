@@ -1,5 +1,7 @@
 import type { Settings } from './src/settings';
 import type { OpenDialogOptions, OpenDialogReturnValue } from 'electron';
+import type { DateSessions } from './src/handler/handleSessions';
+import type { SessionData } from './src/handleMessage';
 
 export {};
 
@@ -9,8 +11,11 @@ declare global {
             getSettings: () => Promise<Settings>;
             setSettings: (settings: Partial<Settings>) => Promise<void>;
             showOpenDialog: (options: OpenDialogOptions) => Promise<OpenDialogReturnValue>;
-            getSessions: () => Promise<Session[]>;
-            getCurrentSessionData: (filename: string) => Promise<ChatEntry[]>;
+            getSessions: () => Promise<DateSessions[]>;
+            getCurrentSessionData: (filename: string) => Promise<SessionData | undefined>;
+            setSessionNotes: (filename: string, notes: string) => Promise<void>;
+            setSessionTitle: (filename: string, title: string) => Promise<void>;
+            getLocale: () => Promise<string>;
         };
     }
 }

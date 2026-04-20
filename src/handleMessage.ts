@@ -8,6 +8,18 @@ export type ChatEntry = {
     message: string;
 };
 
+export type SessionMetadata = {
+    notes: string;
+    title: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type SessionData = {
+    session: SessionMetadata;
+    entries: ChatEntry[];
+};
+
 export async function saveMessage(sender: string | undefined, message: string | undefined): Promise<void> {
     if (sender === undefined || sender.length === 0 || message === undefined || message.length === 0) {
         throw new Error('Sender and message are required');
@@ -29,19 +41,24 @@ export async function saveMessage(sender: string | undefined, message: string | 
     const timestamp = new Date();
     const date = timestamp.getFullYear() + String(timestamp.getMonth() + 1).padStart(2, '0') + String(timestamp.getDate()).padStart(2, '0');
     const entry: ChatEntry = {
-        timestamp: timestamp.toLocaleString(),
+        timestamp: timestamp.toISOString(),
         sender,
         message,
     };
 
     if (latestSession === null || timestamp.getTime() - latestSession.time > getSettings().sessionGapMinutes * 60 * 1000) {
         const newSessionPath = createSessionPath(files, [safeSender], date);
-        await fs.writeFile(newSessionPath, JSON.stringify([entry], undefined, 2), 'utf8');
+        const initialSession: SessionData = {
+            session: { notes: '', title: timestamp.toLocaleDateString(), createdAt: timestamp.toISOString(), updatedAt: timestamp.toISOString() },
+            entries: [entry],
+        };
+        await fs.writeFile(newSessionPath, JSON.stringify(initialSession, undefined, 2), 'utf8');
         return;
     } else {
         const existingContent = await fs.readFile(latestSession.path, 'utf8');
-        const parsed = JSON.parse(existingContent) as ChatEntry[];
-        parsed.push(entry);
+        const parsed = JSON.parse(existingContent) as SessionData;
+        parsed.entries.push(entry);
+        parsed.session.updatedAt = timestamp.toISOString();
 
         const senders = latestSession.name.replace(/\.json$/, '').split('-').slice(1);
         let sessionPath = latestSession.path;

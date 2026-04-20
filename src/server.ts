@@ -18,7 +18,7 @@ export function startServer() {
             }
             console.info('Received request', req.url, req.method,req.headers);
             try {
-                await saveMessage(url.searchParams.get('sender'), url.searchParams.get('message'));
+                await saveMessage(url.searchParams.get('sender') ?? undefined, url.searchParams.get('message') ?? undefined);
                 res.writeHead(204);
                 res.end();
             } catch (error) {

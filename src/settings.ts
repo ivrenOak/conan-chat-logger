@@ -1,3 +1,4 @@
+import { app } from 'electron';
 import { promises as fs } from 'fs';
 
 export interface Settings {
