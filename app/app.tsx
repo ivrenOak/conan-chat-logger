@@ -17,7 +17,11 @@ export function App() {
 
     return (
         <ThemeProvider defaultTheme="system">
-            {settings?.onboardingCompleted ? <ChatOverview /> : <Onboarding settings={settings!} setSettings={setSettings} />}
+            {settings?.onboardingCompleted ? (
+                <ChatOverview />
+            ) : (
+                <Onboarding settings={settings!} setSettings={setSettings} />
+            )}
         </ThemeProvider>
     );
 }

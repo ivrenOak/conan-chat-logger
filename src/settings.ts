@@ -19,7 +19,10 @@ let settings: Settings = {
 
 export async function loadSettings() {
     try {
-        const config = await fs.readFile('conan-chat-logger-config.json', 'utf8');
+        const config = await fs.readFile(
+            'conan-chat-logger-config.json',
+            'utf8',
+        );
         settings = JSON.parse(config) as Settings;
     } catch (error) {
         saveSettings();
@@ -27,7 +30,11 @@ export async function loadSettings() {
 }
 
 async function saveSettings() {
-    await fs.writeFile('conan-chat-logger-config.json', JSON.stringify(settings, undefined, 2), 'utf8');
+    await fs.writeFile(
+        'conan-chat-logger-config.json',
+        JSON.stringify(settings, undefined, 2),
+        'utf8',
+    );
 }
 
 export function getSettings() {
@@ -35,13 +42,22 @@ export function getSettings() {
 }
 
 function assertValidSettings(s: Settings): void {
-    if (typeof s.sessionGapMinutes !== 'number' || !Number.isFinite(s.sessionGapMinutes) || s.sessionGapMinutes <= 0) {
+    if (
+        typeof s.sessionGapMinutes !== 'number' ||
+        !Number.isFinite(s.sessionGapMinutes) ||
+        s.sessionGapMinutes <= 0
+    ) {
         console.error('sessionGapMinutes must be a positive number');
     }
     if (typeof s.dataDir !== 'string' || s.dataDir.trim() === '') {
         console.error('dataDir must be a non-empty string');
     }
-    if (typeof s.port !== 'number' || !Number.isInteger(s.port) || s.port < 1 || s.port > 65535) {
+    if (
+        typeof s.port !== 'number' ||
+        !Number.isInteger(s.port) ||
+        s.port < 1 ||
+        s.port > 65535
+    ) {
         console.error('port must be an integer between 1 and 65535');
     }
     if (typeof s.onboardingCompleted !== 'boolean') {

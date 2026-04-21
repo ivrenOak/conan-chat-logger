@@ -10,12 +10,17 @@ declare global {
         api: {
             getSettings: () => Promise<Settings>;
             setSettings: (settings: Partial<Settings>) => Promise<void>;
-            showOpenDialog: (options: OpenDialogOptions) => Promise<OpenDialogReturnValue>;
+            showOpenDialog: (
+                options: OpenDialogOptions,
+            ) => Promise<OpenDialogReturnValue>;
             getSessions: () => Promise<DateSessions[]>;
-            getCurrentSessionData: (filename: string) => Promise<SessionData | undefined>;
+            getCurrentSessionData: (
+                filename: string,
+            ) => Promise<SessionData | undefined>;
             setSessionNotes: (filename: string, notes: string) => Promise<void>;
             setSessionTitle: (filename: string, title: string) => Promise<void>;
             getLocale: () => Promise<string>;
+            filterSessionsBySearch: (search: string) => Promise<DateSessions[]>;
         };
     }
 }

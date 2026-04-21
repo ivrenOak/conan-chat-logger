@@ -12,13 +12,19 @@ export function startServer() {
                 return;
             }
             if (req.method !== 'GET') {
-                res.writeHead(405, { 'Content-Type': 'text/plain', Allow: 'GET' });
+                res.writeHead(405, {
+                    'Content-Type': 'text/plain',
+                    Allow: 'GET',
+                });
                 res.end('Method Not Allowed');
                 return;
             }
-            console.info('Received request', req.url, req.method,req.headers);
+            console.info('Received request', req.url, req.method, req.headers);
             try {
-                await saveMessage(url.searchParams.get('sender') ?? undefined, url.searchParams.get('message') ?? undefined);
+                await saveMessage(
+                    url.searchParams.get('sender') ?? undefined,
+                    url.searchParams.get('message') ?? undefined,
+                );
                 res.writeHead(204);
                 res.end();
             } catch (error) {
@@ -30,7 +36,9 @@ export function startServer() {
         });
 
         server.listen(getSettings().port, 'localhost', () => {
-            console.info(`Server is running on http://localhost:${getSettings().port}/`);
+            console.info(
+                `Server is running on http://localhost:${getSettings().port}/`,
+            );
         });
     } catch (error) {
         console.error(error);

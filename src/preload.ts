@@ -7,11 +7,20 @@ import type { SessionData } from './handleMessage';
 
 contextBridge.exposeInMainWorld('api', {
     getSettings: () => ipcRenderer.invoke('get-settings'),
-    setSettings: (settings: Partial<Settings>) => ipcRenderer.invoke('set-settings', settings),
-    showOpenDialog: (options: OpenDialogOptions) => ipcRenderer.invoke('show-open-dialog', options),
+    setSettings: (settings: Partial<Settings>) =>
+        ipcRenderer.invoke('set-settings', settings),
+    showOpenDialog: (options: OpenDialogOptions) =>
+        ipcRenderer.invoke('show-open-dialog', options),
     getSessions: () => ipcRenderer.invoke('get-sessions'),
-    getCurrentSessionData: (filename: string): Promise<SessionData | undefined> => ipcRenderer.invoke('get-current-session-data', filename),
-    setSessionNotes: (filename: string, notes: string) => ipcRenderer.invoke('set-session-notes', filename, notes),
-    setSessionTitle: (filename: string, title: string) => ipcRenderer.invoke('set-session-title', filename, title),
+    getCurrentSessionData: (
+        filename: string,
+    ): Promise<SessionData | undefined> =>
+        ipcRenderer.invoke('get-current-session-data', filename),
+    setSessionNotes: (filename: string, notes: string) =>
+        ipcRenderer.invoke('set-session-notes', filename, notes),
+    setSessionTitle: (filename: string, title: string) =>
+        ipcRenderer.invoke('set-session-title', filename, title),
     getLocale: () => ipcRenderer.invoke('get-locale'),
+    filterSessionsBySearch: (search: string) =>
+        ipcRenderer.invoke('filter-sessions-by-search', search),
 });

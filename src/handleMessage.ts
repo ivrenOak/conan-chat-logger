@@ -20,39 +20,75 @@ export type SessionData = {
     entries: ChatEntry[];
 };
 
-export async function saveMessage(sender: string | undefined, message: string | undefined): Promise<void> {
-    if (sender === undefined || sender.length === 0 || message === undefined || message.length === 0) {
+export const SESSION_FILE_PATTERN = /^\d{8}(?:\(\d+\))?-\w+(?:-\w+)*\.json$/;
+
+export async function saveMessage(
+    sender: string | undefined,
+    message: string | undefined,
+): Promise<void> {
+    if (
+        sender === undefined ||
+        sender.length === 0 ||
+        message === undefined ||
+        message.length === 0
+    ) {
         throw new Error('Sender and message are required');
     }
 
     const safeSender = sender.replace(/\W/g, '');
     const files = await fs.readdir(getSettings().dataDir);
 
-    const latestSession = (
-        await Promise.all(
-            files.map(async (name) => {
-                const fullPath = path.join(getSettings().dataDir, name);
-                const stat = await fs.stat(fullPath);
-                return { name, path: fullPath, time: stat.mtimeMs };
-            }),
+    const latestSession =
+        (
+            await Promise.all(
+                files.map(async (name) => {
+                    const fullPath = path.join(getSettings().dataDir, name);
+                    const stat = await fs.stat(fullPath);
+                    return {
+                        name,
+                        path: fullPath,
+                        time: stat.birthtimeMs,
+                        isFile: stat.isFile(),
+                    };
+                }),
+            )
         )
-    ).sort((a, b) => b.time - a.time)[0] ?? null;
+            .filter((f) => f.isFile && SESSION_FILE_PATTERN.test(f.name))
+            .sort((a, b) => b.time - a.time)[0] ?? null;
+
+    console.log(latestSession);
 
     const timestamp = new Date();
-    const date = timestamp.getFullYear() + String(timestamp.getMonth() + 1).padStart(2, '0') + String(timestamp.getDate()).padStart(2, '0');
+    const date =
+        timestamp.getFullYear() +
+        String(timestamp.getMonth() + 1).padStart(2, '0') +
+        String(timestamp.getDate()).padStart(2, '0');
     const entry: ChatEntry = {
         timestamp: timestamp.toISOString(),
         sender,
         message,
     };
 
-    if (latestSession === null || timestamp.getTime() - latestSession.time > getSettings().sessionGapMinutes * 60 * 1000) {
+    if (
+        latestSession === null ||
+        timestamp.getTime() - latestSession.time >
+            getSettings().sessionGapMinutes * 60 * 1000
+    ) {
         const newSessionPath = createSessionPath(files, [safeSender], date);
         const initialSession: SessionData = {
-            session: { notes: '', title: timestamp.toLocaleDateString(), createdAt: timestamp.toISOString(), updatedAt: timestamp.toISOString() },
+            session: {
+                notes: '',
+                title: timestamp.toLocaleDateString(),
+                createdAt: timestamp.toISOString(),
+                updatedAt: timestamp.toISOString(),
+            },
             entries: [entry],
         };
-        await fs.writeFile(newSessionPath, JSON.stringify(initialSession, undefined, 2), 'utf8');
+        await fs.writeFile(
+            newSessionPath,
+            JSON.stringify(initialSession, undefined, 2),
+            'utf8',
+        );
         return;
     } else {
         const existingContent = await fs.readFile(latestSession.path, 'utf8');
@@ -60,7 +96,10 @@ export async function saveMessage(sender: string | undefined, message: string | 
         parsed.entries.push(entry);
         parsed.session.updatedAt = timestamp.toISOString();
 
-        const senders = latestSession.name.replace(/\.json$/, '').split('-').slice(1);
+        const senders = latestSession.name
+            .replace(/\.json$/, '')
+            .split('-')
+            .slice(1);
         let sessionPath = latestSession.path;
         if (!senders.includes(safeSender)) {
             senders.push(safeSender);
@@ -68,11 +107,19 @@ export async function saveMessage(sender: string | undefined, message: string | 
             await fs.rename(latestSession.path, sessionPath);
         }
 
-        await fs.writeFile(sessionPath, JSON.stringify(parsed, undefined, 2), 'utf8');
+        await fs.writeFile(
+            sessionPath,
+            JSON.stringify(parsed, undefined, 2),
+            'utf8',
+        );
     }
 }
 
-function createSessionPath(files: string[], senders: string[], date: string): string {
+function createSessionPath(
+    files: string[],
+    senders: string[],
+    date: string,
+): string {
     let counter = 1;
     let sessionName = `${date}-${senders.join('-')}.json`;
     while (files.includes(sessionName)) {
