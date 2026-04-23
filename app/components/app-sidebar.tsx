@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { RefreshCcwIcon, SearchIcon, XIcon } from 'lucide-react';
+import { EyeOffIcon, RefreshCcwIcon, SearchIcon, SplitIcon, Trash2Icon, XIcon } from 'lucide-react';
 import {
     Sidebar,
     SidebarContent,
@@ -31,11 +31,17 @@ import {
     ComboboxValue,
     useComboboxAnchor,
 } from './ui/combobox';
-import { Field, FieldLabel } from './ui/field';
+import { Field, FieldError, FieldLabel } from './ui/field';
 import { Separator } from './ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { type DateRange } from 'react-day-picker';
 import { Calendar } from './ui/calendar';
+import { MoreVerticalIcon } from 'lucide-react';
+import { DropdownMenu, DropdownMenuItem, DropdownMenuGroup, DropdownMenuContent, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogTrigger } from './ui/dialog';
+import { DialogHeader } from './ui/dialog';
+import { DialogTitle } from './ui/dialog';
+import { MessageItem } from './message-item';
 
 export function AppSidebar({
     sessions,
@@ -61,6 +67,17 @@ export function AppSidebar({
     const [selectedDate, setSelectedDate] = useState<DateRange | undefined>(
         undefined,
     );
+    const [splitSessionData, setSplitSessionData] = useState<SessionData | undefined>();
+    const [isNumberValid, setIsNumberValid] = useState<boolean>(true);
+    const [splitAfter, setSplitAfter] = useState<string>('');
+
+    const handleSplitSessionDialogOpenChange = async (
+        filename: string,
+    ) => {
+        const data = await window.api.getCurrentSessionData(filename);
+        setSplitSessionData(data);
+    };
+
 
     useEffect(() => {
         window.api.getLocale().then((value) => {
@@ -275,26 +292,140 @@ export function AppSidebar({
                                                 <SidebarMenuSubItem
                                                     key={session.filename}
                                                 >
-                                                    <SidebarMenuSubButton
-                                                        isActive={
-                                                            currentSessionFile ===
-                                                            session.filename
-                                                        }
-                                                        onClick={() =>
-                                                            setCurrentSessionFile(
-                                                                session.filename,
-                                                            )
-                                                        }
-                                                        title={session.senders.join(
-                                                            ', ',
-                                                        )}
-                                                    >
-                                                        <span className="block w-full truncate whitespace-nowrap">
-                                                            {session.senders.join(
+                                                    <ButtonGroup className="w-full" >
+                                                        <SidebarMenuSubButton className="w-full"
+                                                            isActive={
+                                                                currentSessionFile ===
+                                                                session.filename
+                                                            }
+                                                            onClick={() =>
+                                                                setCurrentSessionFile(
+                                                                    session.filename,
+                                                                )
+                                                            }
+                                                            title={session.senders.join(
                                                                 ', ',
                                                             )}
-                                                        </span>
-                                                    </SidebarMenuSubButton>
+                                                        >
+                                                            <span className="block w-full truncate whitespace-nowrap">
+                                                                {session.senders.join(
+                                                                    ', ',
+                                                                )}
+                                                            </span>
+                                                        </SidebarMenuSubButton>
+                                                        
+
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                            <SidebarMenuSubButton
+                                                                isActive={
+                                                                    currentSessionFile ===
+                                                                    session.filename
+                                                                }
+                                                            >
+                                                                <MoreVerticalIcon className=" text-muted-foreground" />
+                                                            </SidebarMenuSubButton>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end" className="w-50">
+                                                            <DropdownMenuGroup>
+                                                                <DropdownMenuItem onClick={() => {
+                                                                    window.api.setSessionHidden(session.filename, true).then(() => {
+                                                                        window.api.getSessions().then(setSessions);
+                                                                    });
+                                                                }}><EyeOffIcon /> Hide from app</DropdownMenuItem>
+                                                                <Dialog>
+                                                                    <DialogTrigger asChild><DropdownMenuItem onSelect={(event) => event.preventDefault() } onClick={() => handleSplitSessionDialogOpenChange(session.filename)}>
+                                                                        <SplitIcon /> Split into multiple sessions
+                                                                    </DropdownMenuItem></DialogTrigger>
+                                                                    <DialogContent className="sm:max-w-sm">
+                                                                        <DialogHeader>
+                                                                            <DialogTitle>Split into multiple sessions</DialogTitle>
+                                                                            <DialogDescription>After which message you want to split the session.</DialogDescription>
+                                                                            <Field>
+                                                                                <FieldLabel htmlFor="session-timeout">
+                                                                                    Write the message number you want to split the session after
+                                                                                </FieldLabel>
+                                                                                <Input
+                                                                                    id="session-timeout"
+                                                                                    value={splitAfter}
+                                                                                    aria-invalid={!isNumberValid}
+                                                                                    onChange={(e) => {
+                                                                                        const validatedValue = Number(e.target.value);
+                                                                                        const isValid =
+                                                                                            !isNaN(validatedValue) && validatedValue > 0;
+                                                                                        setIsNumberValid(isValid);
+                                                                                        setSplitAfter(e.target.value);
+                                                                                    }}
+                                                                                />
+                                                                                {!isNumberValid && (
+                                                                                    <FieldError>
+                                                                                        Enter a number.
+                                                                                    </FieldError>
+                                                                                )}
+                                                                            </Field>
+                                                                        </DialogHeader>
+                                                                        <MessageItem entries={splitSessionData?.entries ?? []} showNumbers={true} />
+                                                                        <DialogFooter>
+                                                                            <DialogClose asChild>
+                                                                                <Button variant="outline">Cancel</Button>
+                                                                            </DialogClose>
+                                                                            <DialogClose asChild>
+                                                                                <Button type="submit" onClick={() => {
+                                                                                    if(!isNumberValid){
+                                                                                        return
+                                                                                    }
+                                                                                    window.api.splitSession(session.filename, Number(splitAfter)).then(() => {
+                                                                                        window.api.getSessions().then(setSessions);
+                                                                                        if (currentSessionFile === session.filename) {
+                                                                                            setCurrentSessionFile('');
+                                                                                            setCurrentSessionData(undefined);
+                                                                                        }
+                                                                                    });
+                                                                                }}>Split Session
+                                                                                </Button>
+                                                                            </DialogClose>
+                                                                        </DialogFooter>
+                                                                    </DialogContent>
+                                                                </Dialog>
+                                                                <Dialog>
+                                                                    <DialogTrigger asChild>
+                                                                        <DropdownMenuItem
+                                                                            onSelect={(event) =>
+                                                                                event.preventDefault()
+                                                                            }
+                                                                        >
+                                                                            <Trash2Icon />
+                                                                            Delete session
+                                                                        </DropdownMenuItem>
+                                                                    </DialogTrigger>
+                                                                    <DialogContent className="sm:max-w-sm">
+                                                                    <DialogHeader>
+                                                                        <DialogTitle>Delete session</DialogTitle>
+                                                                        <DialogDescription>Are you sure you want to delete this session? This action cannot be undone.</DialogDescription>
+                                                                    </DialogHeader>
+                                                                    <DialogFooter>
+                                                                        <DialogClose asChild>
+                                                                        <Button variant="outline">Cancel</Button>
+                                                                        </DialogClose>
+                                                                        <DialogClose asChild>
+                                                                        <Button type="submit" onClick={() => {
+                                                                            window.api.deleteSession(session.filename).then(() => {
+                                                                                window.api.getSessions().then(setSessions);
+                                                                                if (currentSessionFile === session.filename) {
+                                                                                    setCurrentSessionFile('');
+                                                                                    setCurrentSessionData(undefined);
+                                                                                }
+                                                                            });
+                                                                        }}>Delete Session</Button>
+                                                                        </DialogClose>
+                                                                    </DialogFooter>
+                                                                    </DialogContent>
+                                                                </Dialog>
+                                                            </DropdownMenuGroup>
+
+                                                        </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </ButtonGroup>
                                                 </SidebarMenuSubItem>
                                             ),
                                         )}

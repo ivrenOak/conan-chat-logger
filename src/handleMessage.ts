@@ -115,11 +115,12 @@ export async function saveMessage(
     }
 }
 
-function createSessionPath(
+export function createSessionPath(
     files: string[],
     senders: string[],
     date: string,
 ): string {
+
     let counter = 1;
     let sessionName = `${date}-${senders.join('-')}.json`;
     while (files.includes(sessionName)) {

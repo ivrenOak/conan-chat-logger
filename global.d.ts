@@ -21,6 +21,9 @@ declare global {
             setSessionTitle: (filename: string, title: string) => Promise<void>;
             getLocale: () => Promise<string>;
             filterSessionsBySearch: (search: string) => Promise<DateSessions[]>;
+            deleteSession: (filename: string) => Promise<void>;
+            setSessionHidden: (filename: string, hidden: boolean) => Promise<void>;
+            splitSession: (filename: string, splitAfter: number) => Promise<void>;
         };
     }
 }

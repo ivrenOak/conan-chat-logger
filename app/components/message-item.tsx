@@ -73,9 +73,10 @@ function hsvToRgb(h: number, s: number, v: number): [number, number, number] {
 type MessageItemProps = {
     entries?: ChatEntry[];
     search?: string;
+    showNumbers?: boolean;
 };
 
-export function MessageItem({ entries = [], search = '' }: MessageItemProps) {
+export function MessageItem({ entries = [], search = '', showNumbers = false }: MessageItemProps) {
     const [locale, setLocale] = useState('');
 
     useEffect(() => {
@@ -100,9 +101,13 @@ export function MessageItem({ entries = [], search = '' }: MessageItemProps) {
         return nextSenderColor;
     }, [entries]);
 
+    if (!locale) return;
+
     return (
         <ItemGroup className="max-w-3xl overflow-y-auto">
-            {entries.map((child) => (
+            {entries.map((child, index) => (
+                <div key={`message-${index}`} className="flex items-center">
+                {showNumbers && <p key={`number-${index}`} className="text-sm text-muted-foreground mr-2">{index + 1}.</p>}
                 <Item
                     key={child.timestamp}
                     variant="outline"
@@ -121,6 +126,7 @@ export function MessageItem({ entries = [], search = '' }: MessageItemProps) {
                         </p>
                     </ItemContent>
                 </Item>
+                </div>
             ))}
         </ItemGroup>
     );

@@ -23,4 +23,10 @@ contextBridge.exposeInMainWorld('api', {
     getLocale: () => ipcRenderer.invoke('get-locale'),
     filterSessionsBySearch: (search: string) =>
         ipcRenderer.invoke('filter-sessions-by-search', search),
+    deleteSession: (filename: string) =>
+        ipcRenderer.invoke('delete-session', filename),
+    setSessionHidden: (filename: string, hidden: boolean) =>
+        ipcRenderer.invoke('set-session-hidden', filename, hidden),
+    splitSession: (filename: string, splitAfter: number) =>
+        ipcRenderer.invoke('split-session', filename, splitAfter),
 });

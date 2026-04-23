@@ -6,6 +6,7 @@ export interface Settings {
     port: number;
     onboardingCompleted: boolean;
     theme: 'light' | 'dark' | 'system';
+    hiddenSessions: string[];
 }
 
 let settings: Settings = {
@@ -14,6 +15,7 @@ let settings: Settings = {
     port: 30128,
     onboardingCompleted: false,
     theme: 'system',
+    hiddenSessions: [],
 };
 
 export async function loadSettings() {
