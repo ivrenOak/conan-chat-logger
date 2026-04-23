@@ -16,7 +16,7 @@ import { DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 export function AppSettings() {
     return (
         <DialogContent className="h-[80vh] max-w-5xl overflow-hidden p-0">
-            <DialogHeader >
+            <DialogHeader>
                 <DialogTitle>Settings</DialogTitle>
             </DialogHeader>
             <SidebarProvider>
@@ -43,7 +43,6 @@ export function AppSettings() {
                 </Sidebar>
                 <SidebarInset className="overflow-hidden">
                     <header className="flex min-h-16 items-center gap-2 border-b px-3 py-2">
-    
                         <p className="text-lg font-semibold">Settings</p>
                     </header>
                     <div className="flex-1 p-4" />

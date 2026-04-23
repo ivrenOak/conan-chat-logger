@@ -2,7 +2,11 @@ import { ipcMain, Settings } from 'electron';
 import { getSettings, setSettings } from '../settings';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { createSessionPath, SESSION_FILE_PATTERN, type SessionData } from '../handleMessage';
+import {
+    createSessionPath,
+    SESSION_FILE_PATTERN,
+    type SessionData,
+} from '../handleMessage';
 
 export type DateSessions = {
     date: Date;
@@ -105,50 +109,80 @@ ipcMain.handle('delete-session', async (event, filename: string) => {
     return;
 });
 
-ipcMain.handle('set-session-hidden', async (event, filename: string, hidden: boolean) => {
-    if (!(await checkSessionFileExists(filename))) {
-        console.error('Session file not found');
+ipcMain.handle(
+    'set-session-hidden',
+    async (event, filename: string, hidden: boolean) => {
+        if (!(await checkSessionFileExists(filename))) {
+            console.error('Session file not found');
+            return;
+        }
+        const settings = getSettings();
+        if (hidden) {
+            settings.hiddenSessions.push(filename);
+        } else {
+            settings.hiddenSessions = settings.hiddenSessions.filter(
+                (f) => f !== filename,
+            );
+        }
+        await setSettings({ hiddenSessions: settings.hiddenSessions });
         return;
-    }
-    const settings = getSettings();
-    if (hidden) {
-        settings.hiddenSessions.push(filename);
-    } else {
-        settings.hiddenSessions = settings.hiddenSessions.filter((f) => f !== filename);
-    }
-    await setSettings({ hiddenSessions: settings.hiddenSessions });
-    return;
-});
+    },
+);
 
-ipcMain.handle('split-session', async (event, filename: string, splitAfter: number) => {
-    if (!(await checkSessionFileExists(filename))) {
-        console.error('Session file not found');
+ipcMain.handle(
+    'split-session',
+    async (event, filename: string, splitAfter: number) => {
+        if (!(await checkSessionFileExists(filename))) {
+            console.error('Session file not found');
+            return;
+        }
+
+        let files = await fs.readdir(getSettings().dataDir);
+        const data = await fs.readFile(
+            path.join(getSettings().dataDir, filename),
+            'utf8',
+        );
+        const parsed = JSON.parse(data) as SessionData;
+        const session1 = {
+            ...parsed,
+            entries: parsed.entries.slice(0, splitAfter),
+        };
+        const senders1 = Array.from(
+            new Set(
+                session1.entries.map((entry) =>
+                    entry.sender.replace(/\W/g, ''),
+                ),
+            ),
+        );
+        const session2 = {
+            ...parsed,
+            entries: parsed.entries.slice(splitAfter),
+        };
+        const senders2 = Array.from(
+            new Set(
+                session2.entries.map((entry) =>
+                    entry.sender.replace(/\W/g, ''),
+                ),
+            ),
+        );
+        const date = filename.slice(0, 8);
+        const session1Path = createSessionPath(files, senders1, date);
+        await fs.writeFile(
+            session1Path,
+            JSON.stringify(session1, undefined, 2),
+            'utf8',
+        );
+        files = await fs.readdir(getSettings().dataDir);
+        const session2Path = createSessionPath(files, senders2, date);
+        await fs.writeFile(
+            session2Path,
+            JSON.stringify(session2, undefined, 2),
+            'utf8',
+        );
+        await fs.unlink(path.join(getSettings().dataDir, filename));
         return;
-    }
-
-    let files = await fs.readdir(getSettings().dataDir);
-    const data = await fs.readFile(path.join(getSettings().dataDir, filename), 'utf8');
-    const parsed = JSON.parse(data) as SessionData;
-    const session1 = {
-        ...parsed,
-        entries: parsed.entries.slice(0, splitAfter),
-    };
-    const senders1= Array.from(new Set(session1.entries.map((entry) => entry.sender.replace(/\W/g, ''))));
-    const session2 = {
-        ...parsed,
-        entries: parsed.entries.slice(splitAfter),
-    };
-    const senders2= Array.from(new Set(session2.entries.map((entry) => entry.sender.replace(/\W/g, ''))));
-    const date = filename.slice(0, 8);
-    const session1Path = createSessionPath(files, senders1, date);
-    await fs.writeFile(session1Path, JSON.stringify(session1, undefined, 2), 'utf8');
-    files = await fs.readdir(getSettings().dataDir);
-    const session2Path = createSessionPath(files, senders2, date);
-    await fs.writeFile(session2Path, JSON.stringify(session2, undefined, 2), 'utf8');
-    await fs.unlink(path.join(getSettings().dataDir, filename));
-    return;
-});
-
+    },
+);
 
 function parseYYYYMMDD(dateStr: string): Date {
     if (!/^\d{8}$/.test(dateStr)) {

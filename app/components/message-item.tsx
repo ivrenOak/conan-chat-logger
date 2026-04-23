@@ -76,7 +76,11 @@ type MessageItemProps = {
     showNumbers?: boolean;
 };
 
-export function MessageItem({ entries = [], search = '', showNumbers = false }: MessageItemProps) {
+export function MessageItem({
+    entries = [],
+    search = '',
+    showNumbers = false,
+}: MessageItemProps) {
     const [locale, setLocale] = useState('');
 
     useEffect(() => {
@@ -107,25 +111,32 @@ export function MessageItem({ entries = [], search = '', showNumbers = false }: 
         <ItemGroup className="max-w-3xl overflow-y-auto">
             {entries.map((child, index) => (
                 <div key={`message-${index}`} className="flex items-center">
-                {showNumbers && <p key={`number-${index}`} className="text-sm text-muted-foreground mr-2">{index + 1}.</p>}
-                <Item
-                    key={child.timestamp}
-                    variant="outline"
-                    style={{ backgroundColor: senderColor[child.sender] }}
-                >
-                    <ItemContent>
-                        <p className="text-sm text-muted-foreground">
-                            {new Date(child.timestamp).toLocaleTimeString(
-                                locale,
-                                { hour: '2-digit', minute: '2-digit' },
-                            )}{' '}
-                            {child.sender}
+                    {showNumbers && (
+                        <p
+                            key={`number-${index}`}
+                            className="text-sm text-muted-foreground mr-2"
+                        >
+                            {index + 1}.
                         </p>
-                        <p className="text-sm whitespace-pre-wrap break-words">
-                            {highlightText(child.message, search)}
-                        </p>
-                    </ItemContent>
-                </Item>
+                    )}
+                    <Item
+                        key={child.timestamp}
+                        variant="outline"
+                        style={{ backgroundColor: senderColor[child.sender] }}
+                    >
+                        <ItemContent>
+                            <p className="text-sm text-muted-foreground">
+                                {new Date(child.timestamp).toLocaleTimeString(
+                                    locale,
+                                    { hour: '2-digit', minute: '2-digit' },
+                                )}{' '}
+                                {child.sender}
+                            </p>
+                            <p className="text-sm whitespace-pre-wrap break-words">
+                                {highlightText(child.message, search)}
+                            </p>
+                        </ItemContent>
+                    </Item>
                 </div>
             ))}
         </ItemGroup>

@@ -112,17 +112,16 @@ export function ChatOverview() {
                             </p>
                         </div>
                     </div>
-                    <ModeToggle/>
+                    <ModeToggle />
                     <Dialog>
                         <DialogTrigger asChild>
                             <Button variant="ghost" size="icon-sm">
-                                <SettingsIcon  />
+                                <SettingsIcon />
                             </Button>
                         </DialogTrigger>
                         <AppSettings />
                     </Dialog>
-                    
-                </header>           
+                </header>
                 <div className="flex-1 overflow-y-auto p-4">
                     <MessageItem entries={currentEntries} search={search} />
                 </div>
