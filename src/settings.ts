@@ -1,4 +1,3 @@
-import { app } from 'electron';
 import { promises as fs } from 'fs';
 
 export interface Settings {
@@ -30,6 +29,9 @@ export async function loadSettings() {
 }
 
 async function saveSettings() {
+    if (settings.onboardingCompleted) {
+        await fs.mkdir(settings.dataDir, { recursive: true });
+    }
     await fs.writeFile(
         'conan-chat-logger-config.json',
         JSON.stringify(settings, undefined, 2),

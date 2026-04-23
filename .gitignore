@@ -92,5 +92,6 @@ typings/
 out/
 
 data/
+conan-chats/
 
 conan-chat-logger-config.json

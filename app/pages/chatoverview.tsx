@@ -10,6 +10,10 @@ import type { DateSessions } from '../../src/handler/handleSessions';
 import type { SessionData } from '../../src/handleMessage';
 import { MessageItem } from '@/components/message-item';
 import { TitleDialog } from '@/components/title-dialog';
+import { AppSettings } from '@/components/settings';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { SettingsIcon } from 'lucide-react';
 
 export function ChatOverview() {
     const [sessions, setSessions] = useState<DateSessions[]>([]);
@@ -108,8 +112,17 @@ export function ChatOverview() {
                             </p>
                         </div>
                     </div>
-                    <ModeToggle />
-                </header>
+                    <ModeToggle/>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon-sm">
+                                <SettingsIcon  />
+                            </Button>
+                        </DialogTrigger>
+                        <AppSettings />
+                    </Dialog>
+                    
+                </header>           
                 <div className="flex-1 overflow-y-auto p-4">
                     <MessageItem entries={currentEntries} search={search} />
                 </div>
