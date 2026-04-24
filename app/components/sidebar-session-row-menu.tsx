@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
     EyeOffIcon,
     MoreVerticalIcon,
+    MergeIcon,
     SplitIcon,
     Trash2Icon,
 } from 'lucide-react';
@@ -29,9 +30,11 @@ import {
 import { Field, FieldError, FieldLabel } from './ui/field';
 import { MessageItem } from './message-item';
 import { SidebarMenuSubButton } from '@/components/ui/sidebar';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Combobox, ComboboxValue, ComboboxContent, ComboboxItem, ComboboxList, ComboboxEmpty, ComboboxChips, ComboboxChip, ComboboxChipsInput, useComboboxAnchor } from './ui/combobox';
 
 type SidebarSessionRowMenuProps = {
+    sessions: DateSessions[];
     session: DateSessions['sessions'][number];
     currentSessionFile: string | undefined;
     setCurrentSessionFile: (filename: string) => void;
@@ -40,6 +43,7 @@ type SidebarSessionRowMenuProps = {
 };
 
 export function SidebarSessionRowMenu({
+    sessions,
     session,
     currentSessionFile,
     setCurrentSessionFile,
@@ -51,12 +55,26 @@ export function SidebarSessionRowMenu({
     >();
     const [isNumberValid, setIsNumberValid] = useState<boolean>(true);
     const [splitAfter, setSplitAfter] = useState<string>('');
+    const [selectedSessions, setSelectedSessions] = useState<string[]>([session.filename.replace(/\.json$/, '')]);
+    const [previewJoin, setPreviewJoin] = useState<SessionData>()
+    const anchor = useComboboxAnchor();
 
     const loadSplitSessionData = (filename: string) => {
         void window.api
             .getCurrentSessionData(filename)
             .then(setSplitSessionData);
     };
+    
+    useEffect(() => {
+        void window.api
+            .joinSessions(
+                selectedSessions.map(
+                    (filename) => `${filename}.json`,
+                ),
+                false,
+            )
+            .then(setPreviewJoin);
+    }, [selectedSessions]);
 
     return (
         <DropdownMenu>
@@ -164,6 +182,119 @@ export function SidebarSessionRowMenu({
                                         }}
                                     >
                                         Split Session
+                                    </Button>
+                                </DialogClose>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <DropdownMenuItem
+                                onSelect={(event) => event.preventDefault()}
+                            >
+                                <MergeIcon/> Join sessions
+                            </DropdownMenuItem>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-sm">
+                            <DialogHeader>
+                                <DialogTitle>
+                                    Join sessions
+                                </DialogTitle>
+                                <DialogDescription>
+                                    Select the sessions you want to join.
+                                </DialogDescription>
+                                <Field className="px-2 py-1.5 text-muted-foreground">
+                                    <Combobox
+                                        multiple
+                                        autoHighlight
+                                        items={[
+                                            ...new Set(
+                                                sessions.flatMap((dateSessions) =>
+                                                    dateSessions.sessions.flatMap(
+                                                        (session) => session.filename.replace(/\.json$/, ''),
+                                                    ),
+                                                ),
+                                            ),
+                                        ]}
+                                        value={selectedSessions}
+                                        onValueChange={(value) => setSelectedSessions(value)}
+                                    >
+                                        <ComboboxChips ref={anchor} className="w-full">
+                                            <ComboboxValue>
+                                                {(values) => (
+                                                    <React.Fragment>
+                                                        {values.map((value: string) => (
+                                                            <ComboboxChip key={value}>
+                                                                {value}
+                                                            </ComboboxChip>
+                                                        ))}
+                                                        <ComboboxChipsInput
+                                                            className="placeholder:text-muted-foreground"
+                                                            placeholder={
+                                                                selectedSessions.length === 0
+                                                                    ? 'Add Session'
+                                                                    : ''
+                                                            }
+                                                        />
+                                                    </React.Fragment>
+                                                )}
+                                            </ComboboxValue>
+                                        </ComboboxChips>
+                                        <ComboboxContent className="pointer-events-auto" anchor={anchor}>
+                                            <ComboboxEmpty>No items found.</ComboboxEmpty>
+                                            <ComboboxList>
+                                                {(item) => (
+                                                    <ComboboxItem key={item} value={item}>
+                                                        {item}
+                                                    </ComboboxItem>
+                                                )}
+                                            </ComboboxList>
+                                        </ComboboxContent>
+                                    </Combobox>
+                                </Field>
+                                    
+                            </DialogHeader>
+                            <MessageItem
+                                entries={previewJoin?.entries ?? []}
+                                showNumbers
+                            />
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button variant="outline">Cancel</Button>
+                                </DialogClose>
+                                <DialogClose asChild>
+                                    <Button
+                                        type="submit"
+                                        onClick={() => {
+                                            if (!isNumberValid) {
+                                                return;
+                                            }
+                                            window.api
+                                                .joinSessions   (
+                                                    selectedSessions.map(
+                                                        (filename) => `${filename}.json`,
+                                                    ),
+                                                    true,
+                                                )
+                                                .then(() => {
+                                                    window.api
+                                                        .getSessions()
+                                                        .then(setSessions);
+                                                    if (
+                                                        currentSessionFile ===
+                                                        session.filename
+                                                    ) {
+                                                        setCurrentSessionFile(
+                                                            '',
+                                                        );
+                                                        setCurrentSessionData(
+                                                            undefined,
+                                                        );
+                                                    }
+                                                });
+                                        }}
+                                    >
+                                        Join Session
                                     </Button>
                                 </DialogClose>
                             </DialogFooter>

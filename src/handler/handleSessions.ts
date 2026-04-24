@@ -184,6 +184,92 @@ ipcMain.handle(
     },
 );
 
+ipcMain.handle(
+    'join-sessions',
+    async (event, filenames: string[], saveToFile: boolean) => {
+        const existingFilenames = (
+            await Promise.all(
+                filenames.filter(async (filename) => (
+                    await checkSessionFileExists(filename)
+                )),
+            )
+        )
+
+        if (existingFilenames.length === 0) {
+            console.error('No valid session files were provided');
+            return undefined;
+        }
+
+        const sessionsData = await Promise.all(
+            existingFilenames.map(async (filename) => {
+                const data = await fs.readFile(
+                    path.join(getSettings().dataDir, filename),
+                    'utf8',
+                );
+                return JSON.parse(data) as SessionData;
+            }),
+        );
+
+        const mergedEntries = sessionsData
+            .flatMap((sessionData) => sessionData.entries)
+            .sort(
+                (a, b) =>
+                    new Date(a.timestamp).getTime() -
+                    new Date(b.timestamp).getTime(),
+            );
+
+        const firstCreatedAt = sessionsData
+            .map((sessionData) => sessionData.session.createdAt)
+            .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0]
+        const lastUpdatedAt = sessionsData
+            .map((sessionData) => sessionData.session.updatedAt)
+            .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0]
+        
+        const mergedTitle = sessionsData
+            .map((sessionData) => sessionData.session.title)
+            .join(', ');
+        const mergedNotes = sessionsData
+            .map((sessionData) => sessionData.session.notes)
+            .join('\n\n');
+
+        const mergedSession: SessionData = {
+            session: {
+                title: mergedTitle,
+                notes: mergedNotes,
+                createdAt: firstCreatedAt,
+                updatedAt: lastUpdatedAt,
+            },
+            entries: mergedEntries,
+        };
+
+        if (saveToFile) {
+            const files = await fs.readdir(getSettings().dataDir);
+
+            const date =
+                new Date(firstCreatedAt).getFullYear() +
+                String(new Date(firstCreatedAt).getMonth() + 1).padStart(2, '0') +
+                String(new Date(firstCreatedAt).getDate()).padStart(2, '0');
+
+            const senders = Array.from(
+                new Set(
+                    mergedEntries.map((entry) => entry.sender.replace(/\W/g, '')),
+                ),
+            );
+            const filepath = await createSessionPath(files, senders, date);
+            await fs.writeFile(
+                filepath,
+                JSON.stringify(mergedSession, undefined, 2),
+                'utf8',
+            );
+            for (const filename of filenames) {
+                await fs.unlink(path.join(getSettings().dataDir, filename));
+            }
+        }
+
+        return mergedSession;
+    },
+);
+
 function parseYYYYMMDD(dateStr: string): Date {
     if (!/^\d{8}$/.test(dateStr)) {
         throw new Error('Invalid format. Expected YYYYMMDD');

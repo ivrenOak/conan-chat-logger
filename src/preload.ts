@@ -29,4 +29,6 @@ contextBridge.exposeInMainWorld('api', {
         ipcRenderer.invoke('set-session-hidden', filename, hidden),
     splitSession: (filename: string, splitAfter: number) =>
         ipcRenderer.invoke('split-session', filename, splitAfter),
+    joinSessions: (filenames: string[], saveToFile: boolean) =>
+        ipcRenderer.invoke('join-sessions', filenames, saveToFile)
 });

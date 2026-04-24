@@ -24,6 +24,7 @@ declare global {
             deleteSession: (filename: string) => Promise<void>;
             setSessionHidden: (filename: string, hidden: boolean) => Promise<void>;
             splitSession: (filename: string, splitAfter: number) => Promise<void>;
+            joinSessions: (filenames: string[], saveToFile: boolean) => Promise<SessionData>;
         };
     }
 }

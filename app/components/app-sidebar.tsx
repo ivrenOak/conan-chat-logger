@@ -167,6 +167,7 @@ export function AppSidebar({
                                                         </SidebarMenuSubButton>
 
                                                         <SidebarSessionRowMenu
+                                                            sessions={sessions}
                                                             session={session}
                                                             currentSessionFile={
                                                                 currentSessionFile
