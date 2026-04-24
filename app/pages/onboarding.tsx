@@ -13,10 +13,21 @@ import type { Settings } from '../../src/settings';
 import menuScreenshot from '../../public/menu.png';
 import sudoexileScreenshot from '../../public/sudoexile.png';
 import webhookScreenshot from '../../public/webhook.png';
+import emoteTypeScreenshot from '../../public/emotetype.png';
+import totChatScreenshot from '../../public/totchat.png';
 import { Input } from '@/components/ui/input';
 import { Field, FieldLabel, FieldError } from '@/components/ui/field';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Combobox, ComboboxInput, ComboboxContent, ComboboxEmpty, ComboboxList, ComboboxItem } from '@/components/ui/combobox';
 
+const emoteTypes = {
+    noFormating: 'No Formating',
+    quoteExclude: 'Quote Exclude',
+    asterixInclude: 'Asterix Include',
+    lessMoreInclude: 'Less More Include',
+    asterixExclude: 'Asterix Exclude',
+}
+  
 export function Onboarding(props: {
     settings: Settings;
     setSettings: (settings: Settings) => void;
@@ -27,6 +38,8 @@ export function Onboarding(props: {
     const [sessionTimeout, setSessionTimeout] = useState(
         settings.sessionGapMinutes.toString(),
     );
+
+    console.log(settings.emoteType);
 
     const steps = [
         {
@@ -112,6 +125,52 @@ export function Onboarding(props: {
                             />
                         </li>
                     </ol>
+                </div>
+            ),
+        },
+        {
+            id: 'set-emote-type',
+            title: 'Select in message emote type',
+            description: 'In the Sudo Player Panel in Conan you can see the in message emote type you have selected.',
+            content: (
+                <div>
+                        <div className="mt-2 grid grid-cols-2 gap-2">
+                            <img
+                                src={totChatScreenshot}
+                                alt="Conan menu screenshot"
+                                className="h-auto w-full max-w-md rounded-md border object-contain"
+                            />
+                            <img
+                                src={emoteTypeScreenshot}
+                                alt="Chat & UI Settings screen"
+                                className="h-auto w-full max-w-md rounded-md border object-contain"
+                            />
+                        </div>
+                        <Field>
+                            <FieldLabel>Select the in message emote type</FieldLabel>
+                            <Combobox 
+                                items={Object.keys(emoteTypes)}
+                                value={emoteTypes[settings.emoteType] ?? 'noFormating'}
+                                onValueChange={(value) => {
+                                    setSettings({
+                                        ...settings!,
+                                        emoteType: value as Settings['emoteType'],
+                                    });
+                                }}
+                            >
+                                <ComboboxInput placeholder="Select an in message emote type" />
+                                <ComboboxContent>
+                                    <ComboboxEmpty>No items found.</ComboboxEmpty>
+                                    <ComboboxList>
+                                    {(item: keyof typeof emoteTypes) => (
+                                        <ComboboxItem key={item} value={item}>
+                                            {emoteTypes[item]}
+                                        </ComboboxItem>
+                                    )}
+                                    </ComboboxList>
+                                </ComboboxContent>
+                                </Combobox>
+                        </Field>
                 </div>
             ),
         },

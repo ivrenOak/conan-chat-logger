@@ -1,4 +1,4 @@
-import { ipcMain, Settings } from 'electron';
+import { ipcMain } from 'electron';
 import { getSettings, setSettings } from '../settings';
 import { promises as fs } from 'fs';
 import path from 'path';

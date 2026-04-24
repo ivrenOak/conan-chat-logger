@@ -7,6 +7,7 @@ export interface Settings {
     onboardingCompleted: boolean;
     theme: 'light' | 'dark' | 'system';
     hiddenSessions: string[];
+    emoteType: 'noFormating' | 'quoteExclude' | 'asterixInclude' | 'lessMoreInclude' | 'asterixExclude';
 }
 
 let settings: Settings = {
@@ -16,6 +17,7 @@ let settings: Settings = {
     onboardingCompleted: false,
     theme: 'system',
     hiddenSessions: [],
+    emoteType: 'noFormating',
 };
 
 export async function loadSettings() {
