@@ -19,6 +19,9 @@ import { Input } from '@/components/ui/input';
 import { Field, FieldLabel, FieldError } from '@/components/ui/field';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Combobox, ComboboxInput, ComboboxContent, ComboboxEmpty, ComboboxList, ComboboxItem } from '@/components/ui/combobox';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { CheckedState } from '@radix-ui/react-checkbox';
 
 const emoteTypes = {
     noFormating: 'No Formating',
@@ -80,6 +83,22 @@ export function Onboarding(props: {
                             : 'No folder selected'}
                     </Button>
                 </div>
+            ),
+        },
+        {
+            id: 'close-to-system-tray',
+            title: 'Close to system tray',
+            description: 'Should the app be closed to the system tray? If you close the app to the system tray it will continue to log your chats in the background, otherwise it will stop.',
+            content: (
+                <Field orientation="horizontal">
+                    <Checkbox id="close-to-system-tray" name="close-to-system-tray" checked={settings.closeToSystemTray} onCheckedChange={(checked: CheckedState) => {
+                        setSettings({
+                            ...settings!,
+                            closeToSystemTray: checked === 'indeterminate' ? false : checked,
+                        });
+                    }} />
+                    <Label>Close to system tray</Label>
+                </Field>
             ),
         },
         {

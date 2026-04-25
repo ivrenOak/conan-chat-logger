@@ -8,6 +8,7 @@ export interface Settings {
     theme: 'light' | 'dark' | 'system';
     hiddenSessions: string[];
     emoteType: 'noFormating' | 'quoteExclude' | 'asteriskInclude' | 'lessMoreInclude' | 'asteriskExclude';
+    closeToSystemTray: boolean;
 }
 
 let settings: Settings = {
@@ -18,6 +19,7 @@ let settings: Settings = {
     theme: 'system',
     hiddenSessions: [],
     emoteType: 'noFormating',
+    closeToSystemTray: false,
 };
 
 export async function loadSettings() {

@@ -1,7 +1,7 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Tray, Menu } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
-import { loadSettings } from './settings';
+import { getSettings, loadSettings } from './settings';
 import { startServer } from './server';
 import './handler/handleSettings';
 import './handler/handleSessions';
@@ -10,6 +10,8 @@ import './handler/handleSessions';
 if (started) {
     app.quit();
 }
+
+let tray: Tray | null = null;
 
 loadSettings();
 
@@ -38,6 +40,9 @@ const createWindow = () => {
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
     mainWindow.removeMenu();
+    mainWindow.on("close", (event) => {
+        mainWindow.close();
+    });
 };
 
 // This method will be called when Electron has finished
@@ -49,8 +54,10 @@ app.on('ready', createWindow);
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
+    if (!getSettings().closeToSystemTray) {
+        if (process.platform !== 'darwin') {
+            app.quit();
+        }
     }
 });
 
@@ -64,5 +71,28 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+function handleQuit() {
+    if (process.platform !== "darwin") {
+        app.quit();
+    }
+}
+
+app.whenReady().then(() => {
+    tray = new Tray(path.join(__dirname, '../../public/logo.png'));
+    tray.setToolTip("Conan Chat Logger");
+
+    const contextMenu = Menu.buildFromTemplate([
+        { label: "Quit", type: "normal", click: handleQuit },
+    ]);
+    tray.setContextMenu(contextMenu);
+    tray.addListener("click", () => {
+        if (BrowserWindow.getAllWindows().length === 0) {
+            createWindow();
+        } else {
+            BrowserWindow.getAllWindows()[0].focus();
+        }
+    });
+});
 
 startServer();
