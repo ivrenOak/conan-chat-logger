@@ -7,7 +7,7 @@ export interface Settings {
     onboardingCompleted: boolean;
     theme: 'light' | 'dark' | 'system';
     hiddenSessions: string[];
-    emoteType: 'noFormating' | 'quoteExclude' | 'asterixInclude' | 'lessMoreInclude' | 'asterixExclude';
+    emoteType: 'noFormating' | 'quoteExclude' | 'asteriskInclude' | 'lessMoreInclude' | 'asteriskExclude';
 }
 
 let settings: Settings = {

@@ -23,9 +23,9 @@ import { Combobox, ComboboxInput, ComboboxContent, ComboboxEmpty, ComboboxList, 
 const emoteTypes = {
     noFormating: 'No Formating',
     quoteExclude: 'Quote Exclude',
-    asterixInclude: 'Asterix Include',
+    asteriskInclude: 'asterisk Include',
     lessMoreInclude: 'Less More Include',
-    asterixExclude: 'Asterix Exclude',
+    asteriskExclude: 'asterisk Exclude',
 }
   
 export function Onboarding(props: {

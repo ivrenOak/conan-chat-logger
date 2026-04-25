@@ -2,8 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { Item, ItemGroup } from './ui/item';
 import { ItemContent } from './ui/item';
 import type { ChatEntry } from 'src/handleMessage';
+import { Settings } from 'src/settings';
 
 const GOLDEN_RATIO_CONJUGATE = 0.618033988749895;
+
+type MessageSegment = {
+    text: string;
+    isEmote: boolean;
+};
 
 function highlightText(text: string, query: string) {
     if (!query) return text;
@@ -21,6 +27,16 @@ function highlightText(text: string, query: string) {
             part
         ),
     );
+}
+
+function splitMessage(text: string, splitPattern: RegExp, isEmote: (part: string) => boolean): MessageSegment[] {
+    const parts = text.split(splitPattern);
+    return parts
+        .filter((part) => part.length > 0)
+        .map((part) => ({
+            text: part,
+            isEmote: isEmote(part),
+        }));
 }
 
 function hsvToRgb(h: number, s: number, v: number): [number, number, number] {
@@ -70,16 +86,53 @@ function hsvToRgb(h: number, s: number, v: number): [number, number, number] {
     return [Math.floor(r * 256), Math.floor(g * 256), Math.floor(b * 256)];
 }
 
+function splitMessageByEmoteType(
+    message: string,
+    emoteType: Settings['emoteType'],
+): MessageSegment[] {
+    if (emoteType === 'noFormating') {
+        return [{ text: message, isEmote: false }];
+    }
+
+    if (emoteType === 'quoteExclude') {
+        return splitMessage(message, /("[^"]*(?:"|$))/g, (part) =>
+            !/^"[^"]*(?:"|$)$/.test(part),
+        );
+    }
+
+    if (emoteType === 'asteriskExclude') {
+        return splitMessage(message, /(\*[^*]*(?:\*|$))/g, (part) =>
+            !/^\*[^*]*(?:\*|$)$/.test(part),
+        );
+    }
+
+    if (emoteType === 'lessMoreInclude') {
+        return splitMessage(message, /(<[^>]*(?:>|$))/g, (part) =>
+            /^<[^>]*(?:>|$)$/.test(part),
+        );
+    }
+    
+    if (emoteType === 'asteriskInclude') {
+        return splitMessage(message, /(\*[^*]*(?:\*|$))/g, (part) =>
+            /^\*[^*]*(?:\*|$)$/.test(part),
+        );
+    }
+
+    return [{ text: message, isEmote: false }];
+}
+
 type MessageItemProps = {
     entries?: ChatEntry[];
     search?: string;
     showNumbers?: boolean;
+    emoteType?: Settings['emoteType'];
 };
 
 export function MessageItem({
     entries = [],
     search = '',
     showNumbers = false,
+    emoteType = 'noFormating',
 }: MessageItemProps) {
     const [locale, setLocale] = useState('');
 
@@ -133,7 +186,21 @@ export function MessageItem({
                                 {child.sender}
                             </p>
                             <p className="text-sm whitespace-pre-wrap break-words">
-                                {highlightText(child.message, search)}
+                                {splitMessageByEmoteType(
+                                    child.message,
+                                    emoteType,
+                                ).map((segment, segmentIndex) => (
+                                    <span
+                                        key={`${child.timestamp}-${segmentIndex}`}
+                                        className={
+                                            segment.isEmote
+                                                ? 'text-blue-500'
+                                                : undefined
+                                        }
+                                    >
+                                        {highlightText(segment.text, search)}
+                                    </span>
+                                ))}
                             </p>
                         </ItemContent>
                     </Item>

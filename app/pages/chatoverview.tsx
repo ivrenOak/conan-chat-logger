@@ -14,6 +14,7 @@ import { AppSettings } from '@/components/settings';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { SettingsIcon } from 'lucide-react';
+import { Settings } from 'src/settings';
 
 export function ChatOverview() {
     const [sessions, setSessions] = useState<DateSessions[]>([]);
@@ -21,6 +22,7 @@ export function ChatOverview() {
     const [currentSessionData, setCurrentSessionData] = useState<SessionData>();
     const currentEntries = currentSessionData?.entries ?? [];
     const [search, setSearch] = useState('');
+    const [settings, setSettings] = useState<Settings>();
 
     useEffect(() => {
         if (currentSessionFile) {
@@ -34,6 +36,7 @@ export function ChatOverview() {
 
     useEffect(() => {
         window.api.getSessions().then(setSessions);
+        window.api.getSettings().then(setSettings);
     }, []);
 
     return (
@@ -123,7 +126,7 @@ export function ChatOverview() {
                     </Dialog>
                 </header>
                 <div className="flex-1 overflow-y-auto p-4">
-                    <MessageItem entries={currentEntries} search={search} />
+                    <MessageItem entries={currentEntries} search={search} emoteType={settings?.emoteType ?? 'noFormating'} />
                 </div>
             </SidebarInset>
         </SidebarProvider>
