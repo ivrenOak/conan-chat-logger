@@ -144,6 +144,9 @@ type MessageItemProps = {
     search?: string;
     showNumbers?: boolean;
     emoteType?: Settings['emoteType'];
+    sayColor?: string;
+    emoteColor?: string;
+    oocColor?: string;
 };
 
 export function MessageItem({
@@ -151,6 +154,9 @@ export function MessageItem({
     search = '',
     showNumbers = false,
     emoteType = 'noFormating',
+    sayColor = '#000000',
+    emoteColor = '#68A6FF',
+    oocColor = '#8A8A8A',
 }: MessageItemProps) {
     const [locale, setLocale] = useState('');
 
@@ -219,13 +225,12 @@ export function MessageItem({
                                 ).map((segment, segmentIndex) => (
                                     <span
                                         key={`${child.timestamp}-${segmentIndex}`}
-                                        className={
-                                            segment.isParenthetical
-                                                ? 'text-muted-foreground'
+                                        style={{'color': segment.isParenthetical
+                                                ? oocColor
                                                 : segment.isEmote
-                                                  ? 'text-blue-500'
-                                                  : undefined
-                                        }
+                                                  ? emoteColor
+                                                  : sayColor,
+                                        }}
                                     >
                                         {highlightText(segment.text, search)}
                                     </span>

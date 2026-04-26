@@ -9,6 +9,9 @@ export interface Settings {
     hiddenSessions: string[];
     emoteType: 'noFormating' | 'quoteExclude' | 'asteriskInclude' | 'lessMoreInclude' | 'asteriskExclude';
     closeToSystemTray: boolean;
+    sayColor: string;
+    emoteColor: string;
+    oocColor: string;
 }
 
 let settings: Settings = {
@@ -20,6 +23,9 @@ let settings: Settings = {
     hiddenSessions: [],
     emoteType: 'noFormating',
     closeToSystemTray: false,
+    sayColor: '#000000',
+    emoteColor: '#68A6FF',
+    oocColor: '#8A8A8A',
 };
 
 export async function loadSettings() {

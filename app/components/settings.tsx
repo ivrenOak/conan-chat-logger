@@ -21,6 +21,7 @@ import {
     EmoteTypeField,
     HiddenSessionsField,
     SessionTimeoutField,
+    SetInMessageColorField,
     SetPortField,
     WebhookSetupField,
 } from './settings-fields';
@@ -53,6 +54,9 @@ export function AppSettings({
     const [port, setPort] = useState(settings?.port?.toString() ?? '');
     const [isPortValid, setIsPortValid] = useState(settings?.port ? true : false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    const [sayColor, setSayColor] = useState(settings?.sayColor ?? '#000000');
+    const [emoteColor, setEmoteColor] = useState(settings?.emoteColor ?? '#68A6FF');
+    const [oocColor, setOocColor] = useState(settings?.oocColor ?? '#8A8A8A');
 
     useEffect(() => {
         if (open) {
@@ -95,6 +99,10 @@ export function AppSettings({
             onSettingsSaved?.(settings);
             resetSettingsState();
         });
+    }
+
+    function isValidColor(color: string) {
+        return /^#([0-9a-fA-F]{6})$/.test(color);
     }
 
     return (
@@ -252,6 +260,22 @@ export function AppSettings({
                                     }
                                     onChange={(emoteType) => {
                                         void updateSettings({ emoteType });
+                                    }}
+                                />
+                                <SetInMessageColorField
+                                    showFieldInfo
+                                    sayColor={sayColor}
+                                    emoteColor={emoteColor}
+                                    oocColor={oocColor}
+                                    isValidColor={isValidColor}
+                                    onChange={(sayColor, emoteColor, oocColor) => {
+                                        setSayColor(sayColor);
+                                        setEmoteColor(emoteColor);
+                                        setOocColor(oocColor);
+                                        setHasUnsavedChanges(true);
+                                        if (isValidColor(sayColor) && isValidColor(emoteColor) && isValidColor(oocColor)) {
+                                            void updateSettings({ sayColor, emoteColor, oocColor });
+                                        }
                                     }}
                                 />
                             </section>

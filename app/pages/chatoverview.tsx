@@ -127,7 +127,7 @@ export function ChatOverview() {
                     </Dialog>
                 </header>
                 <div className="flex-1 overflow-y-auto p-4">
-                    <MessageItem entries={currentEntries} search={search} emoteType={settings?.emoteType ?? 'noFormating'} />
+                    <MessageItem entries={currentEntries} search={search} emoteType={settings?.emoteType ?? 'noFormating'} sayColor={settings?.sayColor} emoteColor={settings?.emoteColor} oocColor={settings?.oocColor} />
                 </div>
             </SidebarInset>
         </SidebarProvider>

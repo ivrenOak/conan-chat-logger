@@ -19,7 +19,7 @@ import sudoexileScreenshot from '../../public/sudoexile.png';
 import webhookScreenshot from '../../public/webhook.png';
 import emoteTypeScreenshot from '../../public/emotetype.png';
 import totChatScreenshot from '../../public/totchat.png';
-import { useState } from 'react';
+import { FieldGroup, FieldLabel } from './ui/field';
 
 export const settingsText = {
     gettingStarted: {
@@ -345,6 +345,69 @@ export function SetPortField({ port, isValid, onChange, showFieldInfo = false }:
             {!isValid && (
                 <FieldError>Enter a positive number (1-65535).</FieldError>
             )}
+        </Field>
+    );
+}
+
+
+export function SetInMessageColorField({ sayColor, emoteColor, oocColor, isValidColor, onChange, showFieldInfo = false }: { sayColor: string, emoteColor: string, oocColor: string, isValidColor: (color: string) => boolean, onChange: (nextSayColor: string, nextEmoteColor: string, nextOocColor: string) => void, showFieldInfo?: boolean }) {
+    return (
+        <Field>
+            {showFieldInfo && (
+                <>
+                    <FieldTitle>Message colors</FieldTitle>
+                    <FieldDescription>
+                        Set the colors of the messages. You can use the hex code of the color you want to use. (e.g. #000000). 
+                        The app can't differentiate between speak distances and language.
+                    </FieldDescription>
+                </>
+            )}
+            <Field>
+                <FieldLabel>Preview</FieldLabel>
+                <div className="rounded-md border bg-muted/20 px-3 py-2 text-sm whitespace-pre-wrap break-words">
+                    <span style={{ color: emoteColor }}>\me says{' '}</span>
+                    <span style={{ color: sayColor }}>"Hello everyone, welcome to the future of Conan"</span>{' '}
+                    <span style={{ color: oocColor }}>(Seriously, glad you are checking out my project)</span>
+                </div>
+            </Field>
+            <FieldGroup>
+                <Field>
+                    <FieldLabel> Select the color for Say</FieldLabel>
+                    <Input
+                        id="say-color"
+                        value={sayColor}
+                        onChange={(e) => onChange(e.target.value, emoteColor, oocColor)}
+                        aria-invalid={!isValidColor(sayColor)}
+                    />
+                    {!isValidColor(sayColor) && (
+                        <FieldError>Invalid color code</FieldError>
+                    )}
+                </Field>
+                <Field>
+                    <FieldLabel> Select the color for Emotes</FieldLabel>
+                    <Input
+                        id="emote-color"
+                        value={emoteColor}
+                        onChange={(e) => onChange(sayColor, e.target.value, oocColor)}
+                        aria-invalid={!isValidColor(emoteColor)}
+                    />
+                    {!isValidColor(emoteColor) && (
+                        <FieldError>Invalid color code</FieldError>
+                    )}
+                </Field>
+                <Field>
+                    <FieldLabel> Select the color for Out of Character</FieldLabel>
+                    <Input
+                        id="ooc-color"
+                        value={oocColor}
+                        onChange={(e) => onChange(sayColor, emoteColor, e.target.value)}
+                        aria-invalid={!isValidColor(oocColor)}
+                    />  
+                    {!isValidColor(oocColor) && (
+                        <FieldError>Invalid color code</FieldError>
+                    )}
+                </Field>
+            </FieldGroup>
         </Field>
     );
 }
