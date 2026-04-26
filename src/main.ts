@@ -39,7 +39,7 @@ const createWindow = () => {
     }
 
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
     mainWindow.removeMenu();
     mainWindow.on('close', (event) => {
         mainWindow.close();
