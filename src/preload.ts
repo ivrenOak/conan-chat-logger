@@ -31,6 +31,12 @@ contextBridge.exposeInMainWorld('api', {
         ipcRenderer.invoke('split-session', filename, splitAfter),
     joinSessions: (filenames: string[], saveToFile: boolean) =>
         ipcRenderer.invoke('join-sessions', filenames, saveToFile),
-    saveMessage: (filename: string, message: string, index: number) =>
-        ipcRenderer.invoke('save-message', filename, message, index),
+    saveMessage: (
+        filename: string,
+        sender: string,
+        message: string,
+        index: number,
+    ) => ipcRenderer.invoke('save-message', filename, sender, message, index),
+    importConanAuditLogs: (files: string[]) =>
+        ipcRenderer.invoke('import-conan-audit-logs', files),
 });

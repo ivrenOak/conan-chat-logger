@@ -6,6 +6,7 @@ import { Settings } from 'src/settings';
 import { Button } from './ui/button';
 import { Pencil } from 'lucide-react';
 import { Textarea } from './ui/textarea';
+import { Input } from './ui/input';
 
 const GOLDEN_RATIO_CONJUGATE = 0.618033988749895;
 
@@ -158,7 +159,7 @@ type MessageItemProps = {
     sayColor?: string;
     emoteColor?: string;
     oocColor?: string;
-    onEditMessageSave: (message: string, index: number) => void;
+    onEditMessageSave: (sender: string, message: string, index: number) => void;
 };
 
 export function MessageItem({
@@ -173,6 +174,7 @@ export function MessageItem({
 }: MessageItemProps) {
     const [locale, setLocale] = useState('');
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [editingSender, setEditingSender] = useState('');
     const [editingMessage, setEditingMessage] = useState('');
 
     useEffect(() => {
@@ -232,6 +234,7 @@ export function MessageItem({
                                 title="Edit message"
                                 onClick={() => {
                                     setEditingIndex(index);
+                                    setEditingSender(child.sender);
                                     setEditingMessage(child.message);
                                 }}
                             >
@@ -249,6 +252,15 @@ export function MessageItem({
                                 </p>
                                 {editingIndex === index ? (
                                     <div className="space-y-2">
+                                        <Input
+                                            value={editingSender}
+                                            onChange={(e) => {
+                                                setEditingSender(
+                                                    e.target.value,
+                                                );
+                                            }}
+                                            placeholder="Sender"
+                                        />
                                         <Textarea
                                             value={editingMessage}
                                             onChange={(e) => {
@@ -264,6 +276,7 @@ export function MessageItem({
                                                 variant="outline"
                                                 onClick={() => {
                                                     setEditingIndex(null);
+                                                    setEditingSender('');
                                                     setEditingMessage('');
                                                 }}
                                             >
@@ -274,10 +287,12 @@ export function MessageItem({
                                                 size="sm"
                                                 onClick={() => {
                                                     onEditMessageSave(
+                                                        editingSender,
                                                         editingMessage,
                                                         index,
                                                     );
                                                     setEditingIndex(null);
+                                                    setEditingSender('');
                                                     setEditingMessage('');
                                                 }}
                                             >

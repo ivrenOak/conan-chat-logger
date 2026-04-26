@@ -25,8 +25,17 @@ export function ChatOverview() {
     const [settings, setSettings] = useState<Settings>();
     const [settingsOpen, setSettingsOpen] = useState(false);
 
-    async function onEditMessageSave(message: string, index: number) {
-        await window.api.saveMessage(currentSessionFile ?? '', message, index);
+    async function onEditMessageSave(
+        sender: string,
+        message: string,
+        index: number,
+    ) {
+        await window.api.saveMessage(
+            currentSessionFile ?? '',
+            sender,
+            message,
+            index,
+        );
         const data = await window.api.getCurrentSessionData(
             currentSessionFile ?? '',
         );

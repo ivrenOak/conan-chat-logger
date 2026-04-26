@@ -5,6 +5,7 @@ import path from 'path';
 import {
     createSessionPath,
     SESSION_FILE_PATTERN,
+    type ChatEntry,
     type SessionData,
 } from '../handleMessage';
 
@@ -15,6 +16,12 @@ export type DateSessions = {
         filename: string;
     }[];
 };
+
+const TIME_PREFIX_PATTERN = /^(\d{2}):(\d{2})\s+(.*)$/;
+const WITH_SENDER_BEFORE_CHANNEL_PATTERN =
+    /^(?<sender>.+?)\s+\[(?<channel>[^\]]+)\]\s*:\s*(?:\[(?<language>[^\]]+)\]\s*)?(?<message>.*)$/;
+const WITH_CHANNEL_BEFORE_SENDER_PATTERN =
+    /^\[(?<channel>[^\]]+)\]\s*(?:\[(?<language>[^\]]+)\]\s*)?(?<sender>.+?)\s+(?<message>.*)$/;
 
 ipcMain.handle('get-sessions', getSessions);
 
@@ -275,7 +282,13 @@ ipcMain.handle(
 
 ipcMain.handle(
     'save-message',
-    async (event, filename: string, message: string, index: number) => {
+    async (
+        event,
+        filename: string,
+        sender: string,
+        message: string,
+        index: number,
+    ) => {
         if (!(await checkSessionFileExists(filename))) {
             console.error('Session file not found');
             return;
@@ -289,15 +302,178 @@ ipcMain.handle(
             console.error('Index out of range');
             return;
         }
-        parsed.entries[index] = { ...parsed.entries[index], message };
-        await fs.writeFile(
+        parsed.entries[index] = { ...parsed.entries[index], sender, message };
+        let sessionPath = path.join(getSettings().dataDir, filename);
+
+        const filesInDataDir = await fs.readdir(getSettings().dataDir);
+        const date = filename.slice(0, 8);
+        const senders = Array.from(
+            new Set(
+                parsed.entries.map((entry) => entry.sender.replace(/\W/g, '')),
+            ),
+        ).filter((sender) => sender.length > 0);
+        sessionPath = createSessionPath(filesInDataDir, senders, date);
+        await fs.rename(
             path.join(getSettings().dataDir, filename),
+            sessionPath,
+        );
+
+        await fs.writeFile(
+            sessionPath,
             JSON.stringify(parsed, undefined, 2),
             'utf8',
         );
         return;
     },
 );
+
+ipcMain.handle('import-conan-audit-logs', async (event, files: string[]) => {
+    for (const filePath of files) {
+        const data = await fs.readFile(filePath, 'utf8');
+        const stat = await fs.stat(filePath);
+        const createdMs =
+            stat.birthtimeMs > 0
+                ? stat.birthtimeMs
+                : stat.ctimeMs || stat.mtimeMs;
+        const baseDate = new Date(createdMs);
+        const parsedEntries = parseConanAuditLogText(data, baseDate, filePath);
+        if (parsedEntries.length === 0) {
+            continue;
+        }
+
+        const importedSession: SessionData = {
+            session: {
+                notes: '',
+                title: new Date(
+                    parsedEntries[0].timestamp,
+                ).toLocaleDateString(),
+                createdAt: parsedEntries[0].timestamp,
+                updatedAt: parsedEntries[parsedEntries.length - 1].timestamp,
+            },
+            entries: parsedEntries,
+        };
+
+        const senders = Array.from(
+            new Set(
+                parsedEntries.map((entry) => entry.sender.replace(/\W/g, '')),
+            ),
+        ).filter((sender) => sender.length > 0);
+
+        const filesInDataDir = await fs.readdir(getSettings().dataDir);
+        const date = parsedEntries[0].timestamp.slice(0, 10).replace(/-/g, '');
+        const sessionPath = createSessionPath(filesInDataDir, senders, date);
+        await fs.writeFile(
+            sessionPath,
+            JSON.stringify(importedSession, undefined, 2),
+            'utf8',
+        );
+    }
+});
+
+type ParsedAuditLine = {
+    time: string;
+    sender: string | null;
+    message: string;
+};
+
+function parseConanAuditLogText(
+    content: string,
+    baseDate: Date,
+    sourcePath: string,
+): ChatEntry[] {
+    const lines = content.split(/\r?\n/);
+    const entries: ChatEntry[] = [];
+    let lastEntryIndex = -1;
+    let dayOffset = 0;
+    let previousTotalMinutes: number | null = null;
+
+    for (const rawLine of lines) {
+        const line = rawLine.trimEnd();
+        if (!line) {
+            continue;
+        }
+
+        const parsedLine = parseAuditLine(line);
+        if (!parsedLine) {
+            if (lastEntryIndex >= 0) {
+                entries[lastEntryIndex].message += `\n${line}`;
+            }
+            continue;
+        }
+
+        const [hour, minute] = parsedLine.time.split(':').map(Number);
+        const currentMinutes = hour * 60 + minute;
+        if (
+            previousTotalMinutes !== null &&
+            currentMinutes < previousTotalMinutes
+        ) {
+            dayOffset += 1;
+        }
+        previousTotalMinutes = currentMinutes;
+
+        const timestampDate = new Date(baseDate);
+        timestampDate.setHours(hour, minute, 0, 0);
+        timestampDate.setDate(timestampDate.getDate() + dayOffset);
+        const sender = parsedLine.sender || 'Unknown';
+        const message = parsedLine.message;
+        if (!message) {
+            continue;
+        }
+
+        entries.push({
+            timestamp: timestampDate.toISOString(),
+            sender,
+            message,
+        });
+        lastEntryIndex = entries.length - 1;
+    }
+
+    if (entries.length === 0) {
+        console.warn(`No importable audit log lines found: ${sourcePath}`);
+    }
+
+    return entries;
+}
+
+function parseAuditLine(line: string): ParsedAuditLine | null {
+    const timePrefixMatch = line.match(TIME_PREFIX_PATTERN);
+    if (!timePrefixMatch) {
+        return null;
+    }
+
+    const time = `${timePrefixMatch[1]}:${timePrefixMatch[2]}`;
+    const rest = timePrefixMatch[3];
+    const senderBeforeChannelMatch = rest.match(
+        WITH_SENDER_BEFORE_CHANNEL_PATTERN,
+    );
+    if (senderBeforeChannelMatch?.groups) {
+        return {
+            time,
+            sender: senderBeforeChannelMatch.groups.sender,
+            message: senderBeforeChannelMatch.groups.message,
+        };
+    }
+
+    const channelBeforeSenderMatch = rest.match(
+        WITH_CHANNEL_BEFORE_SENDER_PATTERN,
+    );
+    if (channelBeforeSenderMatch?.groups) {
+        return {
+            time,
+            sender: channelBeforeSenderMatch.groups.sender || 'Unknown',
+            message:
+                channelBeforeSenderMatch.groups.sender +
+                ' ' +
+                channelBeforeSenderMatch.groups.message,
+        };
+    }
+
+    return {
+        time,
+        sender: null,
+        message: rest,
+    };
+}
 
 function parseYYYYMMDD(dateStr: string): Date {
     if (!/^\d{8}$/.test(dateStr)) {

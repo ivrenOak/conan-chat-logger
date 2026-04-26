@@ -36,9 +36,11 @@ declare global {
             ) => Promise<SessionData>;
             saveMessage: (
                 filename: string,
+                sender: string,
                 message: string,
                 index: number,
             ) => Promise<void>;
+            importConanAuditLogs: (files: string[]) => Promise<void>;
         };
     }
 }

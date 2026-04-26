@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { RefreshCcwIcon } from 'lucide-react';
+import { ImportIcon, RefreshCcwIcon } from 'lucide-react';
 import {
     Sidebar,
     SidebarContent,
@@ -22,6 +22,8 @@ import { Separator } from './ui/separator';
 import { type DateRange } from 'react-day-picker';
 import { SidebarSessionFilters } from './sidebar-session-filters';
 import { SidebarSessionRowMenu } from './sidebar-session-row-menu';
+import { Dialog, DialogTrigger } from './ui/dialog';
+import { ImportConanAuditLogsDialogContent } from './import-conan-audit-logs-dialog-content';
 
 export function AppSidebar({
     sessions,
@@ -105,6 +107,19 @@ export function AppSidebar({
                             >
                                 <RefreshCcwIcon className="size-4 text-muted-foreground" />
                             </Button>
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button
+                                        className="ml-auto"
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        title="Import Conan Audit Logs"
+                                    >
+                                        <ImportIcon className="size-4 text-muted-foreground" />
+                                    </Button>
+                                </DialogTrigger>
+                                <ImportConanAuditLogsDialogContent />
+                            </Dialog>
                         </div>
                     </SidebarMenuItem>
                 </SidebarMenu>
