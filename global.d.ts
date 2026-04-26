@@ -22,9 +22,23 @@ declare global {
             getLocale: () => Promise<string>;
             filterSessionsBySearch: (search: string) => Promise<DateSessions[]>;
             deleteSession: (filename: string) => Promise<void>;
-            setSessionHidden: (filename: string, hidden: boolean) => Promise<void>;
-            splitSession: (filename: string, splitAfter: number) => Promise<void>;
-            joinSessions: (filenames: string[], saveToFile: boolean) => Promise<SessionData>;
+            setSessionHidden: (
+                filename: string,
+                hidden: boolean,
+            ) => Promise<void>;
+            splitSession: (
+                filename: string,
+                splitAfter: number,
+            ) => Promise<void>;
+            joinSessions: (
+                filenames: string[],
+                saveToFile: boolean,
+            ) => Promise<SessionData>;
+            saveMessage: (
+                filename: string,
+                message: string,
+                index: number,
+            ) => Promise<void>;
         };
     }
 }

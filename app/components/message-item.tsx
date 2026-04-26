@@ -3,6 +3,9 @@ import { Item, ItemGroup } from './ui/item';
 import { ItemContent } from './ui/item';
 import type { ChatEntry } from 'src/handleMessage';
 import { Settings } from 'src/settings';
+import { Button } from './ui/button';
+import { Pencil } from 'lucide-react';
+import { Textarea } from './ui/textarea';
 
 const GOLDEN_RATIO_CONJUGATE = 0.618033988749895;
 
@@ -155,6 +158,7 @@ type MessageItemProps = {
     sayColor?: string;
     emoteColor?: string;
     oocColor?: string;
+    onEditMessageSave: (message: string, index: number) => void;
 };
 
 export function MessageItem({
@@ -165,8 +169,11 @@ export function MessageItem({
     sayColor,
     emoteColor,
     oocColor,
+    onEditMessageSave,
 }: MessageItemProps) {
     const [locale, setLocale] = useState('');
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [editingMessage, setEditingMessage] = useState('');
 
     useEffect(() => {
         window.api.getLocale().then((value) => {
@@ -194,64 +201,130 @@ export function MessageItem({
 
     return (
         <ItemGroup className="max-w-3xl overflow-y-auto">
-            {entries.map((child, index) => (
-                <div key={`message-${index}`} className="flex items-center">
-                    {showNumbers && (
-                        <p
-                            key={`number-${index}`}
-                            className="text-sm text-muted-foreground mr-2"
-                        >
-                            {index + 1}.
-                        </p>
-                    )}
-                    <Item
-                        key={child.timestamp}
-                        variant="outline"
-                        style={{ backgroundColor: senderColor[child.sender] }}
+            {entries.map((child, index) => {
+                return (
+                    <div
+                        key={`message-${index}`}
+                        className="group/message flex items-center"
                     >
-                        <ItemContent>
-                            <p className="text-sm text-muted-foreground">
-                                {new Date(child.timestamp).toLocaleTimeString(
-                                    locale,
-                                    { hour: '2-digit', minute: '2-digit' },
-                                )}{' '}
-                                {child.sender}
+                        {showNumbers && (
+                            <p
+                                key={`number-${index}`}
+                                className="text-sm text-muted-foreground mr-2"
+                            >
+                                {index + 1}.
                             </p>
-                            <p className="text-sm whitespace-pre-wrap break-words">
-                                {splitParentheticalSegments(child.message)
-                                    .flatMap((parentheticalSegment) =>
-                                        parentheticalSegment.isParenthetical
-                                            ? [parentheticalSegment]
-                                            : splitMessageByEmoteType(
-                                                  parentheticalSegment.text,
-                                                  emoteType,
-                                              ).map((segment) => ({
-                                                  ...segment,
-                                                  isParenthetical: false,
-                                              })),
-                                    )
-                                    .map((segment, segmentIndex) => (
-                                        <span
-                                            key={`${child.timestamp}-${segmentIndex}`}
-                                            style={{
-                                                color: segment.isParenthetical
-                                                    ? oocColor
-                                                    : segment.isEmote
-                                                      ? emoteColor
-                                                      : sayColor,
+                        )}
+                        <Item
+                            key={child.timestamp}
+                            variant="outline"
+                            className="relative pr-10"
+                            style={{
+                                backgroundColor: senderColor[child.sender],
+                            }}
+                        >
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon-xs"
+                                className="absolute top-2 right-2 opacity-0 transition-opacity group-hover/message:opacity-100 focus-visible:opacity-100"
+                                aria-label={`Edit message ${index + 1}`}
+                                title="Edit message"
+                                onClick={() => {
+                                    setEditingIndex(index);
+                                    setEditingMessage(child.message);
+                                }}
+                            >
+                                <Pencil className="size-3 text-muted-foreground" />
+                            </Button>
+                            <ItemContent>
+                                <p className="text-sm text-muted-foreground">
+                                    {new Date(
+                                        child.timestamp,
+                                    ).toLocaleTimeString(locale, {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                    })}{' '}
+                                    {child.sender}
+                                </p>
+                                {editingIndex === index ? (
+                                    <div className="space-y-2">
+                                        <Textarea
+                                            value={editingMessage}
+                                            onChange={(e) => {
+                                                setEditingMessage(
+                                                    e.target.value,
+                                                );
                                             }}
-                                        >
-                                            {highlightText(
-                                                segment.text,
-                                                search,
-                                            )}
-                                        </span>
-                                    ))}
-                            </p>
-                        </ItemContent>
-                    </Item>
-                </div>
-            ))}
+                                        />
+                                        <div className="flex justify-end gap-2">
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() => {
+                                                    setEditingIndex(null);
+                                                    setEditingMessage('');
+                                                }}
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                onClick={() => {
+                                                    onEditMessageSave(
+                                                        editingMessage,
+                                                        index,
+                                                    );
+                                                    setEditingIndex(null);
+                                                    setEditingMessage('');
+                                                }}
+                                            >
+                                                Save
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm whitespace-pre-wrap break-words">
+                                        {splitParentheticalSegments(
+                                            child.message,
+                                        )
+                                            .flatMap((parentheticalSegment) =>
+                                                parentheticalSegment.isParenthetical
+                                                    ? [parentheticalSegment]
+                                                    : splitMessageByEmoteType(
+                                                          parentheticalSegment.text,
+                                                          emoteType,
+                                                      ).map((segment) => ({
+                                                          ...segment,
+                                                          isParenthetical: false,
+                                                      })),
+                                            )
+                                            .map((segment, segmentIndex) => (
+                                                <span
+                                                    key={`${child.timestamp}-${segmentIndex}`}
+                                                    style={{
+                                                        color: segment.isParenthetical
+                                                            ? oocColor
+                                                            : segment.isEmote
+                                                              ? emoteColor
+                                                              : sayColor,
+                                                    }}
+                                                >
+                                                    {highlightText(
+                                                        segment.text,
+                                                        search,
+                                                    )}
+                                                </span>
+                                            ))}
+                                    </p>
+                                )}
+                            </ItemContent>
+                        </Item>
+                    </div>
+                );
+            })}
         </ItemGroup>
     );
 }

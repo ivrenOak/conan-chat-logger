@@ -187,13 +187,11 @@ ipcMain.handle(
 ipcMain.handle(
     'join-sessions',
     async (event, filenames: string[], saveToFile: boolean) => {
-        const existingFilenames = (
-            await Promise.all(
-                filenames.filter(async (filename) => (
-                    await checkSessionFileExists(filename)
-                )),
-            )
-        )
+        const existingFilenames = await Promise.all(
+            filenames.filter(
+                async (filename) => await checkSessionFileExists(filename),
+            ),
+        );
 
         if (existingFilenames.length === 0) {
             console.error('No valid session files were provided');
@@ -220,11 +218,11 @@ ipcMain.handle(
 
         const firstCreatedAt = sessionsData
             .map((sessionData) => sessionData.session.createdAt)
-            .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0]
+            .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0];
         const lastUpdatedAt = sessionsData
             .map((sessionData) => sessionData.session.updatedAt)
-            .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0]
-        
+            .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0];
+
         const mergedTitle = sessionsData
             .map((sessionData) => sessionData.session.title)
             .join(', ');
@@ -247,12 +245,17 @@ ipcMain.handle(
 
             const date =
                 new Date(firstCreatedAt).getFullYear() +
-                String(new Date(firstCreatedAt).getMonth() + 1).padStart(2, '0') +
+                String(new Date(firstCreatedAt).getMonth() + 1).padStart(
+                    2,
+                    '0',
+                ) +
                 String(new Date(firstCreatedAt).getDate()).padStart(2, '0');
 
             const senders = Array.from(
                 new Set(
-                    mergedEntries.map((entry) => entry.sender.replace(/\W/g, '')),
+                    mergedEntries.map((entry) =>
+                        entry.sender.replace(/\W/g, ''),
+                    ),
                 ),
             );
             const filepath = await createSessionPath(files, senders, date);
@@ -267,6 +270,32 @@ ipcMain.handle(
         }
 
         return mergedSession;
+    },
+);
+
+ipcMain.handle(
+    'save-message',
+    async (event, filename: string, message: string, index: number) => {
+        if (!(await checkSessionFileExists(filename))) {
+            console.error('Session file not found');
+            return;
+        }
+        const data = await fs.readFile(
+            path.join(getSettings().dataDir, filename),
+            'utf8',
+        );
+        const parsed = JSON.parse(data) as SessionData;
+        if (index < 0 || index >= parsed.entries.length) {
+            console.error('Index out of range');
+            return;
+        }
+        parsed.entries[index] = { ...parsed.entries[index], message };
+        await fs.writeFile(
+            path.join(getSettings().dataDir, filename),
+            JSON.stringify(parsed, undefined, 2),
+            'utf8',
+        );
+        return;
     },
 );
 

@@ -30,5 +30,7 @@ contextBridge.exposeInMainWorld('api', {
     splitSession: (filename: string, splitAfter: number) =>
         ipcRenderer.invoke('split-session', filename, splitAfter),
     joinSessions: (filenames: string[], saveToFile: boolean) =>
-        ipcRenderer.invoke('join-sessions', filenames, saveToFile)
+        ipcRenderer.invoke('join-sessions', filenames, saveToFile),
+    saveMessage: (filename: string, message: string, index: number) =>
+        ipcRenderer.invoke('save-message', filename, message, index),
 });

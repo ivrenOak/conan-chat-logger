@@ -25,6 +25,14 @@ export function ChatOverview() {
     const [settings, setSettings] = useState<Settings>();
     const [settingsOpen, setSettingsOpen] = useState(false);
 
+    async function onEditMessageSave(message: string, index: number) {
+        await window.api.saveMessage(currentSessionFile ?? '', message, index);
+        const data = await window.api.getCurrentSessionData(
+            currentSessionFile ?? '',
+        );
+        setCurrentSessionData(data);
+    }
+
     useEffect(() => {
         if (currentSessionFile) {
             window.api
@@ -131,6 +139,7 @@ export function ChatOverview() {
                         entries={currentEntries}
                         search={search}
                         emoteType={settings?.emoteType ?? 'noFormating'}
+                        onEditMessageSave={onEditMessageSave}
                         sayColor={
                             document.documentElement.classList.contains('dark')
                                 ? (settings?.darkSayColor ?? '#FFFFFF')
