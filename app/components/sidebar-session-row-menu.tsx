@@ -120,20 +120,16 @@ export function SidebarSessionRowMenu({
                                 <SplitIcon /> Split into multiple sessions
                             </DropdownMenuItem>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-sm">
+                        <DialogContent className="sm:max-w-sm !max-w-[900px] overflow-hidden">
                             <DialogHeader>
                                 <DialogTitle>
                                     Split into multiple sessions
                                 </DialogTitle>
                                 <DialogDescription>
-                                    After which message you want to split the
-                                    session.
+                                    Enter the message number after which the
+                                    session should be split
                                 </DialogDescription>
                                 <Field>
-                                    <FieldLabel htmlFor="session-timeout">
-                                        Write the message number you want to
-                                        split the session after
-                                    </FieldLabel>
                                     <Input
                                         id="session-timeout"
                                         value={splitAfter}
@@ -154,10 +150,12 @@ export function SidebarSessionRowMenu({
                                     )}
                                 </Field>
                             </DialogHeader>
-                            <MessageItem
-                                entries={splitSessionData?.entries ?? []}
-                                showNumbers
-                            />
+                            <div className="max-h-[400px] overflow-y-auto">
+                                <MessageItem
+                                    entries={splitSessionData?.entries ?? []}
+                                    showNumbers
+                                />
+                            </div>
                             <DialogFooter>
                                 <DialogClose asChild>
                                     <Button variant="outline">Cancel</Button>
@@ -206,7 +204,7 @@ export function SidebarSessionRowMenu({
                                 <MergeIcon /> Join sessions
                             </DropdownMenuItem>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-sm">
+                        <DialogContent className="sm:max-w-sm !max-w-[900px] overflow-hidden">
                             <DialogHeader>
                                 <DialogTitle>Join sessions</DialogTitle>
                                 <DialogDescription>
@@ -285,10 +283,13 @@ export function SidebarSessionRowMenu({
                                     </Combobox>
                                 </Field>
                             </DialogHeader>
-                            <MessageItem
-                                entries={previewJoin?.entries ?? []}
-                                showNumbers
-                            />
+                            <Field className="max-h-[400px] overflow-y-auto">
+                                <FieldLabel>Preview</FieldLabel>
+                                <MessageItem
+                                    entries={previewJoin?.entries ?? []}
+                                    showNumbers
+                                />
+                            </Field>
                             <DialogFooter>
                                 <DialogClose asChild>
                                     <Button variant="outline">Cancel</Button>
