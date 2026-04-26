@@ -23,6 +23,7 @@ export function ChatOverview() {
     const currentEntries = currentSessionData?.entries ?? [];
     const [search, setSearch] = useState('');
     const [settings, setSettings] = useState<Settings>();
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     useEffect(() => {
         if (currentSessionFile) {
@@ -37,7 +38,7 @@ export function ChatOverview() {
     useEffect(() => {
         window.api.getSessions().then(setSessions);
         window.api.getSettings().then(setSettings);
-    }, []);
+    }, [settingsOpen]);
 
     return (
         <SidebarProvider>
@@ -116,13 +117,13 @@ export function ChatOverview() {
                         </div>
                     </div>
                     <ModeToggle />
-                    <Dialog>
+                    <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
                         <DialogTrigger asChild>
                             <Button variant="ghost" size="icon-sm">
                                 <SettingsIcon />
                             </Button>
                         </DialogTrigger>
-                        <AppSettings />
+                        <AppSettings open={settingsOpen} />
                     </Dialog>
                 </header>
                 <div className="flex-1 overflow-y-auto p-4">

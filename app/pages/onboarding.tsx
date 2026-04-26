@@ -10,26 +10,15 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { useState } from 'react';
 import type { Settings } from '../../src/settings';
-import menuScreenshot from '../../public/menu.png';
-import sudoexileScreenshot from '../../public/sudoexile.png';
-import webhookScreenshot from '../../public/webhook.png';
-import emoteTypeScreenshot from '../../public/emotetype.png';
-import totChatScreenshot from '../../public/totchat.png';
-import { Input } from '@/components/ui/input';
-import { Field, FieldLabel, FieldError } from '@/components/ui/field';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Combobox, ComboboxInput, ComboboxContent, ComboboxEmpty, ComboboxList, ComboboxItem } from '@/components/ui/combobox';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { CheckedState } from '@radix-ui/react-checkbox';
-
-const emoteTypes = {
-    noFormating: 'No Formating',
-    quoteExclude: 'Quote Exclude',
-    asteriskInclude: 'asterisk Include',
-    lessMoreInclude: 'Less More Include',
-    asteriskExclude: 'asterisk Exclude',
-}
+import {
+    CloseToSystemTrayField,
+    DataDirField,
+    EmoteTypeField,
+    SessionTimeoutField,
+    settingsText,
+    WebhookSetupField,
+} from '@/components/settings-fields';
   
 export function Onboarding(props: {
     settings: Settings;
@@ -42,186 +31,79 @@ export function Onboarding(props: {
         settings.sessionGapMinutes.toString(),
     );
 
-    console.log(settings.emoteType);
-
     const steps = [
         {
-            id: 'getting-started',
-            title: 'Getting Started',
-            description: 'Set up Conan Chat Logger in a few quick steps.',
+            id: settingsText.gettingStarted.id,
+            title: settingsText.gettingStarted.title,
+            description: settingsText.gettingStarted.description,
         },
         {
-            id: 'save-chats-to-folder',
-            title: 'Save chats to a folder',
-            description: 'Choose where chats should be stored.',
+            id: settingsText.dataDir.id,
+            title: settingsText.dataDir.title,
+            description: settingsText.dataDir.description,
             content: (
-                <div>
-                    <Button
-                        variant="outline"
-                        onClick={() =>
-                            window.api
-                                .showOpenDialog({
-                                    title: 'Select a folder',
-                                    properties: [
-                                        'openDirectory',
-                                        'openDirectory',
-                                    ],
-                                })
-                                .then((result) => {
-                                    if (result.filePaths.length > 0) {
-                                        setSettings({
-                                            ...settings!,
-                                            dataDir: result.filePaths[0],
-                                        });
-                                    }
-                                })
-                        }
-                    >
-                        Browse:{' '}
-                        {settings?.dataDir
-                            ? settings.dataDir
-                            : 'No folder selected'}
-                    </Button>
-                </div>
-            ),
-        },
-        {
-            id: 'close-to-system-tray',
-            title: 'Close to system tray',
-            description: 'Should the app be closed to the system tray? If you close the app to the system tray it will continue to log your chats in the background, otherwise it will stop.',
-            content: (
-                <Field orientation="horizontal">
-                    <Checkbox id="close-to-system-tray" name="close-to-system-tray" checked={settings.closeToSystemTray} onCheckedChange={(checked: CheckedState) => {
+                <DataDirField
+                    dataDir={settings.dataDir}
+                    onChange={(dataDir) =>
                         setSettings({
-                            ...settings!,
-                            closeToSystemTray: checked === 'indeterminate' ? false : checked,
-                        });
-                    }} />
-                    <Label>Close to system tray</Label>
-                </Field>
+                            ...settings,
+                            dataDir,
+                        })
+                    }
+                />
             ),
         },
         {
-            id: 'set-webhook-in-conan',
-            title: 'Set a webhook in Conan',
-            description:
-                'Set an webhook in Conan to send chat logs to the app.',
+            id: settingsText.closeToSystemTray.id,
+            title: settingsText.closeToSystemTray.title,
+            description: settingsText.closeToSystemTray.description,
             content: (
-                <div className="space-y-4 text-sm">
-                    <ol className="list-decimal space-y-4 pl-5">
-                        <li>
-                            <p>Open Conan and press ESC to open the menu.</p>
-                        </li>
-                        <li>
-                            <p>
-                                Click on SUDO Player Panel and then Chat & UI
-                                Settings
-                            </p>
-                            <div className="mt-2 grid grid-cols-2 gap-2">
-                                <img
-                                    src={menuScreenshot}
-                                    alt="Conan menu screenshot"
-                                    className="h-auto w-full max-w-md rounded-md border object-contain"
-                                />
-                                <img
-                                    src={sudoexileScreenshot}
-                                    alt="Chat & UI Settings screen"
-                                    className="h-auto w-1/2 max-w-md rounded-md border object-contain"
-                                />
-                            </div>
-                        </li>
-                        <li>
-                            <p>
-                                Check Enable Webhook and set the Webhook URL to:{' '}
-                                <code>
-                                    http://localhost:{settings.port}/conan
-                                </code>
-                            </p>
-                            <img
-                                src={webhookScreenshot}
-                                alt="Example webhook setup details"
-                                className="mt-2 w-3/4 max-w-3xl rounded-md border"
-                            />
-                        </li>
-                    </ol>
-                </div>
+                <CloseToSystemTrayField
+                    checked={settings.closeToSystemTray}
+                    onChange={(closeToSystemTray) =>
+                        setSettings({
+                            ...settings,
+                            closeToSystemTray,
+                        })
+                    }
+                />
             ),
         },
         {
-            id: 'set-emote-type',
-            title: 'Select in message emote type',
-            description: 'In the Sudo Player Panel in Conan you can see the in message emote type you have selected.',
+            id: settingsText.webhook.id,
+            title: settingsText.webhook.title,
+            description: settingsText.webhook.description,
+            content: <WebhookSetupField port={settings.port} />,
+        },
+        {
+            id: settingsText.emoteType.id,
+            title: settingsText.emoteType.title,
+            description: settingsText.emoteType.description,
             content: (
-                <div>
-                        <div className="mt-2 grid grid-cols-2 gap-2">
-                            <img
-                                src={totChatScreenshot}
-                                alt="Conan menu screenshot"
-                                className="h-auto w-full max-w-md rounded-md border object-contain"
-                            />
-                            <img
-                                src={emoteTypeScreenshot}
-                                alt="Chat & UI Settings screen"
-                                className="h-auto w-full max-w-md rounded-md border object-contain"
-                            />
-                        </div>
-                        <Field>
-                            <FieldLabel>Select the in message emote type</FieldLabel>
-                            <Combobox 
-                                items={Object.keys(emoteTypes)}
-                                value={emoteTypes[settings.emoteType] ?? 'noFormating'}
-                                onValueChange={(value) => {
-                                    setSettings({
-                                        ...settings!,
-                                        emoteType: value as Settings['emoteType'],
-                                    });
-                                }}
-                            >
-                                <ComboboxInput placeholder="Select an in message emote type" />
-                                <ComboboxContent>
-                                    <ComboboxEmpty>No items found.</ComboboxEmpty>
-                                    <ComboboxList>
-                                    {(item: keyof typeof emoteTypes) => (
-                                        <ComboboxItem key={item} value={item}>
-                                            {emoteTypes[item]}
-                                        </ComboboxItem>
-                                    )}
-                                    </ComboboxList>
-                                </ComboboxContent>
-                                </Combobox>
-                        </Field>
-                </div>
+                <EmoteTypeField
+                    emoteType={settings.emoteType}
+                    onChange={(emoteType) =>
+                        setSettings({
+                            ...settings,
+                            emoteType,
+                        })
+                    }
+                />
             ),
         },
         {
-            id: 'set-session-timeout',
-            title: 'Set the session timeout',
-            description:
-                'If you stop chatting for the selected amount of time, a new session will be started.',
+            id: settingsText.sessionTimeout.id,
+            title: settingsText.sessionTimeout.title,
+            description: settingsText.sessionTimeout.description,
             content: (
-                <Field>
-                    <FieldLabel htmlFor="session-timeout">
-                        Session Timeout (minutes)
-                    </FieldLabel>
-                    <Input
-                        id="session-timeout"
-                        value={sessionTimeout}
-                        aria-invalid={!isNumberValid}
-                        onChange={(e) => {
-                            const validatedValue = Number(e.target.value);
-                            console.log(validatedValue);
-                            const isValid =
-                                !isNaN(validatedValue) && validatedValue > 0;
-                            setIsNumberValid(isValid);
-                            setSessionTimeout(e.target.value);
-                        }}
-                    />
-                    {!isNumberValid && (
-                        <FieldError>
-                            Enter a positive number (minutes).
-                        </FieldError>
-                    )}
-                </Field>
+                <SessionTimeoutField
+                    value={sessionTimeout}
+                    isValid={isNumberValid}
+                    onValueChange={(nextValue, nextIsValid) => {
+                        setSessionTimeout(nextValue);
+                        setIsNumberValid(nextIsValid);
+                    }}
+                />
             ),
         },
     ];
