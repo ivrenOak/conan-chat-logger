@@ -79,7 +79,9 @@ export function DataDirField({
             {showFieldInfo && (
                 <>
                     <FieldTitle>{settingsText.dataDir.title}</FieldTitle>
-                    <FieldDescription>{settingsText.dataDir.description}</FieldDescription>
+                    <FieldDescription>
+                        {settingsText.dataDir.description}
+                    </FieldDescription>
                 </>
             )}
             <Button
@@ -117,22 +119,24 @@ export function EmoteTypeField({
             {showFieldInfo && (
                 <>
                     <FieldTitle>{settingsText.emoteType.title}</FieldTitle>
-                    <FieldDescription>{settingsText.emoteType.description}</FieldDescription>
+                    <FieldDescription>
+                        {settingsText.emoteType.description}
+                    </FieldDescription>
                 </>
             )}
-                <div className="mt-2 flex gap-2">
-                    <img
-                        src={totChatScreenshot}
-                        alt="Conan menu screenshot"
-                        className="h-auto w-[300px] max-w-md rounded-md border object-contain"
-                    />
-                    <img
-                        src={emoteTypeScreenshot}
-                        alt="Chat & UI Settings screen"
-                        className="h-auto w-[300px] max-w-md rounded-md border object-contain"
-                    />
-                </div>
-            <Combobox 
+            <div className="mt-2 flex gap-2">
+                <img
+                    src={totChatScreenshot}
+                    alt="Conan menu screenshot"
+                    className="h-auto w-[300px] max-w-md rounded-md border object-contain"
+                />
+                <img
+                    src={emoteTypeScreenshot}
+                    alt="Chat & UI Settings screen"
+                    className="h-auto w-[300px] max-w-md rounded-md border object-contain"
+                />
+            </div>
+            <Combobox
                 items={Object.keys(emoteTypeLabels)}
                 value={emoteTypeLabels[emoteType] ?? 'noFormating'}
                 onValueChange={(value) => {
@@ -143,25 +147,33 @@ export function EmoteTypeField({
                 <ComboboxContent className="pointer-events-auto">
                     <ComboboxEmpty>No items found.</ComboboxEmpty>
                     <ComboboxList>
-                    {(item: keyof typeof emoteTypeLabels) => (
-                        <ComboboxItem key={item} value={item}>
-                            {emoteTypeLabels[item]}
-                        </ComboboxItem>
-                    )}
+                        {(item: keyof typeof emoteTypeLabels) => (
+                            <ComboboxItem key={item} value={item}>
+                                {emoteTypeLabels[item]}
+                            </ComboboxItem>
+                        )}
                     </ComboboxList>
                 </ComboboxContent>
-                </Combobox>
+            </Combobox>
         </Field>
     );
 }
 
-export function WebhookSetupField({ port, showFieldInfo = false }: { port: number, showFieldInfo?: boolean }) {
+export function WebhookSetupField({
+    port,
+    showFieldInfo = false,
+}: {
+    port: number;
+    showFieldInfo?: boolean;
+}) {
     return (
         <Field className="space-y-4 text-sm">
             {showFieldInfo && (
                 <>
                     <FieldTitle>{settingsText.webhook.title}</FieldTitle>
-                    <FieldDescription>{settingsText.webhook.description}</FieldDescription>
+                    <FieldDescription>
+                        {settingsText.webhook.description}
+                    </FieldDescription>
                 </>
             )}
             <ol className="list-decimal space-y-4 pl-5">
@@ -169,7 +181,9 @@ export function WebhookSetupField({ port, showFieldInfo = false }: { port: numbe
                     <p>Open Conan and press ESC to open the menu.</p>
                 </li>
                 <li>
-                    <p>Click on SUDO Player Panel and then Chat & UI Settings</p>
+                    <p>
+                        Click on SUDO Player Panel and then Chat & UI Settings
+                    </p>
                     <div className="mt-2 flex gap-2">
                         <img
                             src={menuScreenshot}
@@ -215,7 +229,9 @@ export function SessionTimeoutField({
             {showFieldInfo && (
                 <>
                     <FieldTitle>{settingsText.sessionTimeout.title}</FieldTitle>
-                    <FieldDescription>{settingsText.sessionTimeout.description}</FieldDescription>
+                    <FieldDescription>
+                        {settingsText.sessionTimeout.description}
+                    </FieldDescription>
                 </>
             )}
             <Input
@@ -250,8 +266,12 @@ export function CloseToSystemTrayField({
         <Field className="w-full">
             {showFieldInfo && (
                 <>
-                    <FieldTitle>{settingsText.closeToSystemTray.title}</FieldTitle>
-                    <FieldDescription>{settingsText.closeToSystemTray.description}</FieldDescription>
+                    <FieldTitle>
+                        {settingsText.closeToSystemTray.title}
+                    </FieldTitle>
+                    <FieldDescription>
+                        {settingsText.closeToSystemTray.description}
+                    </FieldDescription>
                 </>
             )}
             <div className="flex items-center gap-2">
@@ -263,9 +283,7 @@ export function CloseToSystemTrayField({
                         onChange(value === 'indeterminate' ? false : value)
                     }
                 />
-                <Label
-                    htmlFor="close-to-system-tray"
-                >
+                <Label htmlFor="close-to-system-tray">
                     Close to system tray
                 </Label>
             </div>
@@ -287,7 +305,9 @@ export function HiddenSessionsField({
             {showFieldInfo && (
                 <>
                     <FieldTitle>Hidden sessions</FieldTitle>
-                    <FieldDescription>Manage the sessions that should be hidden from the app.</FieldDescription>
+                    <FieldDescription>
+                        Manage the sessions that should be hidden from the app.
+                    </FieldDescription>
                 </>
             )}
 
@@ -322,13 +342,28 @@ export function HiddenSessionsField({
     );
 }
 
-export function SetPortField({ port, isValid, onChange, showFieldInfo = false }: { port: string, isValid: boolean, onChange: (nextPort: string, nextIsValid: boolean) => void, showFieldInfo?: boolean }) {
+export function SetPortField({
+    port,
+    isValid,
+    onChange,
+    showFieldInfo = false,
+}: {
+    port: string;
+    isValid: boolean;
+    onChange: (nextPort: string, nextIsValid: boolean) => void;
+    showFieldInfo?: boolean;
+}) {
     return (
         <Field>
             {showFieldInfo && (
                 <>
                     <FieldTitle>Set the port</FieldTitle>
-                    <FieldDescription>Don't change this if you don't know what you are doing! Set the port to listen for webhooks. You also have to change this in your Conan webhook settings. Restart the app after changing the port.</FieldDescription>
+                    <FieldDescription>
+                        Don&apos;t change this if you don&apos;t know what you
+                        are doing! Set the port to listen for webhooks. You also
+                        have to change this in your Conan webhook settings.
+                        Restart the app after changing the port.
+                    </FieldDescription>
                 </>
             )}
             <Input
@@ -338,7 +373,9 @@ export function SetPortField({ port, isValid, onChange, showFieldInfo = false }:
                     const nextValue = e.target.value;
                     const validatedValue = Number(nextValue);
                     const nextIsValid =
-                        !isNaN(validatedValue) && validatedValue > 0 && validatedValue < 65536;
+                        !isNaN(validatedValue) &&
+                        validatedValue > 0 &&
+                        validatedValue < 65536;
                     onChange(nextValue, nextIsValid);
                 }}
             />
@@ -349,65 +386,218 @@ export function SetPortField({ port, isValid, onChange, showFieldInfo = false }:
     );
 }
 
-
-export function SetInMessageColorField({ sayColor, emoteColor, oocColor, isValidColor, onChange, showFieldInfo = false }: { sayColor: string, emoteColor: string, oocColor: string, isValidColor: (color: string) => boolean, onChange: (nextSayColor: string, nextEmoteColor: string, nextOocColor: string) => void, showFieldInfo?: boolean }) {
+export function SetInMessageColorField({
+    sayColor,
+    emoteColor,
+    oocColor,
+    darkSayColor,
+    darkEmoteColor,
+    darkOocColor,
+    isValidColor,
+    onChange,
+    showFieldInfo = false,
+}: {
+    sayColor: string;
+    emoteColor: string;
+    oocColor: string;
+    darkSayColor: string;
+    darkEmoteColor: string;
+    darkOocColor: string;
+    isValidColor: (color: string) => boolean;
+    onChange: (
+        nextSayColor: string,
+        nextEmoteColor: string,
+        nextOocColor: string,
+        nextDarkSayColor: string,
+        nextDarkEmoteColor: string,
+        nextDarkOocColor: string,
+    ) => void;
+    showFieldInfo?: boolean;
+}) {
     return (
         <Field>
             {showFieldInfo && (
                 <>
                     <FieldTitle>Message colors</FieldTitle>
                     <FieldDescription>
-                        Set the colors of the messages. You can use the hex code of the color you want to use. (e.g. #000000). 
-                        The app can't differentiate between speak distances and language.
+                        Set the colors of the messages. You can use the hex code
+                        of the color you want to use. (e.g. #000000). The app
+                        can&apos;t differentiate between speak distances and
+                        language.
                     </FieldDescription>
                 </>
             )}
-            <Field>
-                <FieldLabel>Preview</FieldLabel>
-                <div className="rounded-md border bg-muted/20 px-3 py-2 text-sm whitespace-pre-wrap break-words">
-                    <span style={{ color: emoteColor }}>\me says{' '}</span>
-                    <span style={{ color: sayColor }}>"Hello everyone, welcome to the future of Conan"</span>{' '}
-                    <span style={{ color: oocColor }}>(Seriously, glad you are checking out my project)</span>
+            <div className="grid gap-6 lg:grid-cols-2">
+                <div className="space-y-4">
+                    <Field>
+                        <FieldLabel>Light mode preview</FieldLabel>
+                        <div className="rounded-md border bg-white px-3 py-2 text-sm whitespace-pre-wrap break-words">
+                            <span style={{ color: emoteColor }}>\me says </span>
+                            <span style={{ color: sayColor }}>
+                                &quot;Hello everyone, welcome to the future of
+                                Conan&quot;
+                            </span>{' '}
+                            <span style={{ color: oocColor }}>
+                                (Seriously, glad you are checking out my
+                                project)
+                            </span>
+                        </div>
+                    </Field>
+                    <FieldGroup>
+                        <Field>
+                            <FieldLabel>Select the color for Say</FieldLabel>
+                            <Input
+                                id="say-color"
+                                value={sayColor}
+                                onChange={(e) =>
+                                    onChange(
+                                        e.target.value,
+                                        emoteColor,
+                                        oocColor,
+                                        darkSayColor,
+                                        darkEmoteColor,
+                                        darkOocColor,
+                                    )
+                                }
+                                aria-invalid={!isValidColor(sayColor)}
+                            />
+                            {!isValidColor(sayColor) && (
+                                <FieldError>Invalid color code</FieldError>
+                            )}
+                        </Field>
+                        <Field>
+                            <FieldLabel>Select the color for Emotes</FieldLabel>
+                            <Input
+                                id="emote-color"
+                                value={emoteColor}
+                                onChange={(e) =>
+                                    onChange(
+                                        sayColor,
+                                        e.target.value,
+                                        oocColor,
+                                        darkSayColor,
+                                        darkEmoteColor,
+                                        darkOocColor,
+                                    )
+                                }
+                                aria-invalid={!isValidColor(emoteColor)}
+                            />
+                            {!isValidColor(emoteColor) && (
+                                <FieldError>Invalid color code</FieldError>
+                            )}
+                        </Field>
+                        <Field>
+                            <FieldLabel>
+                                Select the color for Out of Character
+                            </FieldLabel>
+                            <Input
+                                id="ooc-color"
+                                value={oocColor}
+                                onChange={(e) =>
+                                    onChange(
+                                        sayColor,
+                                        emoteColor,
+                                        e.target.value,
+                                        darkSayColor,
+                                        darkEmoteColor,
+                                        darkOocColor,
+                                    )
+                                }
+                                aria-invalid={!isValidColor(oocColor)}
+                            />
+                            {!isValidColor(oocColor) && (
+                                <FieldError>Invalid color code</FieldError>
+                            )}
+                        </Field>
+                    </FieldGroup>
                 </div>
-            </Field>
-            <FieldGroup>
-                <Field>
-                    <FieldLabel> Select the color for Say</FieldLabel>
-                    <Input
-                        id="say-color"
-                        value={sayColor}
-                        onChange={(e) => onChange(e.target.value, emoteColor, oocColor)}
-                        aria-invalid={!isValidColor(sayColor)}
-                    />
-                    {!isValidColor(sayColor) && (
-                        <FieldError>Invalid color code</FieldError>
-                    )}
-                </Field>
-                <Field>
-                    <FieldLabel> Select the color for Emotes</FieldLabel>
-                    <Input
-                        id="emote-color"
-                        value={emoteColor}
-                        onChange={(e) => onChange(sayColor, e.target.value, oocColor)}
-                        aria-invalid={!isValidColor(emoteColor)}
-                    />
-                    {!isValidColor(emoteColor) && (
-                        <FieldError>Invalid color code</FieldError>
-                    )}
-                </Field>
-                <Field>
-                    <FieldLabel> Select the color for Out of Character</FieldLabel>
-                    <Input
-                        id="ooc-color"
-                        value={oocColor}
-                        onChange={(e) => onChange(sayColor, emoteColor, e.target.value)}
-                        aria-invalid={!isValidColor(oocColor)}
-                    />  
-                    {!isValidColor(oocColor) && (
-                        <FieldError>Invalid color code</FieldError>
-                    )}
-                </Field>
-            </FieldGroup>
+
+                <div className="space-y-4">
+                    <Field>
+                        <FieldLabel>Dark mode preview</FieldLabel>
+                        <div className="rounded-md border bg-black px-3 py-2 text-sm whitespace-pre-wrap break-words">
+                            <span style={{ color: darkEmoteColor }}>
+                                \me says{' '}
+                            </span>
+                            <span style={{ color: darkSayColor }}>
+                                &quot;Hello everyone, welcome to the future of
+                                Conan&quot;
+                            </span>{' '}
+                            <span style={{ color: darkOocColor }}>
+                                (Seriously, glad you are checking out my
+                                project)
+                            </span>
+                        </div>
+                    </Field>
+                    <FieldGroup>
+                        <Field>
+                            <FieldLabel>Select the color for Say</FieldLabel>
+                            <Input
+                                id="dark-say-color"
+                                value={darkSayColor}
+                                onChange={(e) =>
+                                    onChange(
+                                        sayColor,
+                                        emoteColor,
+                                        oocColor,
+                                        e.target.value,
+                                        darkEmoteColor,
+                                        darkOocColor,
+                                    )
+                                }
+                                aria-invalid={!isValidColor(darkSayColor)}
+                            />
+                            {!isValidColor(darkSayColor) && (
+                                <FieldError>Invalid color code</FieldError>
+                            )}
+                        </Field>
+                        <Field>
+                            <FieldLabel>Select the color for Emotes</FieldLabel>
+                            <Input
+                                id="dark-emote-color"
+                                value={darkEmoteColor}
+                                onChange={(e) =>
+                                    onChange(
+                                        sayColor,
+                                        emoteColor,
+                                        oocColor,
+                                        darkSayColor,
+                                        e.target.value,
+                                        darkOocColor,
+                                    )
+                                }
+                                aria-invalid={!isValidColor(darkEmoteColor)}
+                            />
+                            {!isValidColor(darkEmoteColor) && (
+                                <FieldError>Invalid color code</FieldError>
+                            )}
+                        </Field>
+                        <Field>
+                            <FieldLabel>
+                                Select the color for Out of Character
+                            </FieldLabel>
+                            <Input
+                                id="dark-ooc-color"
+                                value={darkOocColor}
+                                onChange={(e) =>
+                                    onChange(
+                                        sayColor,
+                                        emoteColor,
+                                        oocColor,
+                                        darkSayColor,
+                                        darkEmoteColor,
+                                        e.target.value,
+                                    )
+                                }
+                                aria-invalid={!isValidColor(darkOocColor)}
+                            />
+                            {!isValidColor(darkOocColor) && (
+                                <FieldError>Invalid color code</FieldError>
+                            )}
+                        </Field>
+                    </FieldGroup>
+                </div>
+            </div>
         </Field>
     );
 }

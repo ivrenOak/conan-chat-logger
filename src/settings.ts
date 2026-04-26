@@ -7,11 +7,19 @@ export interface Settings {
     onboardingCompleted: boolean;
     theme: 'light' | 'dark' | 'system';
     hiddenSessions: string[];
-    emoteType: 'noFormating' | 'quoteExclude' | 'asteriskInclude' | 'lessMoreInclude' | 'asteriskExclude';
+    emoteType:
+        | 'noFormating'
+        | 'quoteExclude'
+        | 'asteriskInclude'
+        | 'lessMoreInclude'
+        | 'asteriskExclude';
     closeToSystemTray: boolean;
     sayColor: string;
     emoteColor: string;
     oocColor: string;
+    darkSayColor: string;
+    darkEmoteColor: string;
+    darkOocColor: string;
 }
 
 let settings: Settings = {
@@ -24,8 +32,11 @@ let settings: Settings = {
     emoteType: 'noFormating',
     closeToSystemTray: false,
     sayColor: '#000000',
-    emoteColor: '#68A6FF',
+    emoteColor: '#B45309',
     oocColor: '#8A8A8A',
+    darkSayColor: '#FFFFFF',
+    darkEmoteColor: '#FDE68A',
+    darkOocColor: '#8A8A8A',
 };
 
 export async function loadSettings() {

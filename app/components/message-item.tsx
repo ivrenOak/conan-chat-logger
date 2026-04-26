@@ -33,7 +33,11 @@ function highlightText(text: string, query: string) {
     );
 }
 
-function splitMessage(text: string, splitPattern: RegExp, isEmote: (part: string) => boolean): MessageSegment[] {
+function splitMessage(
+    text: string,
+    splitPattern: RegExp,
+    isEmote: (part: string) => boolean,
+): MessageSegment[] {
     const parts = text.split(splitPattern);
     return parts
         .filter((part) => part.length > 0)
@@ -113,14 +117,18 @@ function splitMessageByEmoteType(
     }
 
     if (emoteType === 'quoteExclude') {
-        return splitMessage(message, /("[^"]*(?:"|$))/g, (part) =>
-            !/^"[^"]*(?:"|$)$/.test(part),
+        return splitMessage(
+            message,
+            /("[^"]*(?:"|$))/g,
+            (part) => !/^"[^"]*(?:"|$)$/.test(part),
         );
     }
 
     if (emoteType === 'asteriskExclude') {
-        return splitMessage(message, /(\*[^*]*(?:\*|$))/g, (part) =>
-            !/^\*[^*]*(?:\*|$)$/.test(part),
+        return splitMessage(
+            message,
+            /(\*[^*]*(?:\*|$))/g,
+            (part) => !/^\*[^*]*(?:\*|$)$/.test(part),
         );
     }
 
@@ -129,7 +137,7 @@ function splitMessageByEmoteType(
             /^<[^>]*(?:>|$)$/.test(part),
         );
     }
-    
+
     if (emoteType === 'asteriskInclude') {
         return splitMessage(message, /(\*[^*]*(?:\*|$))/g, (part) =>
             /^\*[^*]*(?:\*|$)$/.test(part),
@@ -154,9 +162,9 @@ export function MessageItem({
     search = '',
     showNumbers = false,
     emoteType = 'noFormating',
-    sayColor = '#000000',
-    emoteColor = '#68A6FF',
-    oocColor = '#8A8A8A',
+    sayColor,
+    emoteColor,
+    oocColor,
 }: MessageItemProps) {
     const [locale, setLocale] = useState('');
 
@@ -210,31 +218,35 @@ export function MessageItem({
                                 {child.sender}
                             </p>
                             <p className="text-sm whitespace-pre-wrap break-words">
-                                {splitParentheticalSegments(
-                                    child.message,
-                                ).flatMap((parentheticalSegment) =>
-                                    parentheticalSegment.isParenthetical
-                                        ? [parentheticalSegment]
-                                        : splitMessageByEmoteType(
-                                              parentheticalSegment.text,
-                                              emoteType,
-                                          ).map((segment) => ({
-                                              ...segment,
-                                              isParenthetical: false,
-                                          })),
-                                ).map((segment, segmentIndex) => (
-                                    <span
-                                        key={`${child.timestamp}-${segmentIndex}`}
-                                        style={{'color': segment.isParenthetical
-                                                ? oocColor
-                                                : segment.isEmote
-                                                  ? emoteColor
-                                                  : sayColor,
-                                        }}
-                                    >
-                                        {highlightText(segment.text, search)}
-                                    </span>
-                                ))}
+                                {splitParentheticalSegments(child.message)
+                                    .flatMap((parentheticalSegment) =>
+                                        parentheticalSegment.isParenthetical
+                                            ? [parentheticalSegment]
+                                            : splitMessageByEmoteType(
+                                                  parentheticalSegment.text,
+                                                  emoteType,
+                                              ).map((segment) => ({
+                                                  ...segment,
+                                                  isParenthetical: false,
+                                              })),
+                                    )
+                                    .map((segment, segmentIndex) => (
+                                        <span
+                                            key={`${child.timestamp}-${segmentIndex}`}
+                                            style={{
+                                                color: segment.isParenthetical
+                                                    ? oocColor
+                                                    : segment.isEmote
+                                                      ? emoteColor
+                                                      : sayColor,
+                                            }}
+                                        >
+                                            {highlightText(
+                                                segment.text,
+                                                search,
+                                            )}
+                                        </span>
+                                    ))}
                             </p>
                         </ItemContent>
                     </Item>

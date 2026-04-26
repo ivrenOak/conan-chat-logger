@@ -20,6 +20,7 @@ const createWindow = () => {
     const mainWindow = new BrowserWindow({
         width: 1200,
         height: 800,
+        icon: path.join(__dirname, '../../public/logo.png'),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
         },
@@ -40,7 +41,7 @@ const createWindow = () => {
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
     mainWindow.removeMenu();
-    mainWindow.on("close", (event) => {
+    mainWindow.on('close', (event) => {
         mainWindow.close();
     });
 };
@@ -73,20 +74,20 @@ app.on('activate', () => {
 // code. You can also put them in separate files and import them here.
 
 function handleQuit() {
-    if (process.platform !== "darwin") {
+    if (process.platform !== 'darwin') {
         app.quit();
     }
 }
 
 app.whenReady().then(() => {
     tray = new Tray(path.join(__dirname, '../../public/logo.png'));
-    tray.setToolTip("Conan Chat Logger");
+    tray.setToolTip('Conan Chat Logger');
 
     const contextMenu = Menu.buildFromTemplate([
-        { label: "Quit", type: "normal", click: handleQuit },
+        { label: 'Quit', type: 'normal', click: handleQuit },
     ]);
     tray.setContextMenu(contextMenu);
-    tray.addListener("click", () => {
+    tray.addListener('click', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             createWindow();
         } else {

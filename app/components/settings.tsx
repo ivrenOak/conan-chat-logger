@@ -11,7 +11,12 @@ import {
     SidebarMenuItem,
     SidebarProvider,
 } from './ui/sidebar';
-import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
+import {
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from './ui/dialog';
 import { Button } from './ui/button';
 import { useEffect, useState } from 'react';
 import type { Settings } from '../../src/settings';
@@ -47,16 +52,33 @@ export function AppSettings({
     };
 
     const [settings, setSettings] = useState<Settings | null>(null);
-    const [sessionTimeout, setSessionTimeout] = useState(settings?.sessionGapMinutes?.toString() ?? '');
-    const [isNumberValid, setIsNumberValid] = useState(settings?.sessionGapMinutes ? true : false);
+    const [sessionTimeout, setSessionTimeout] = useState(
+        settings?.sessionGapMinutes?.toString() ?? '',
+    );
+    const [isNumberValid, setIsNumberValid] = useState(
+        settings?.sessionGapMinutes ? true : false,
+    );
     const [selectedSection, setSelectedSection] =
         useState<SettingsSection>('general');
     const [port, setPort] = useState(settings?.port?.toString() ?? '');
-    const [isPortValid, setIsPortValid] = useState(settings?.port ? true : false);
+    const [isPortValid, setIsPortValid] = useState(
+        settings?.port ? true : false,
+    );
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [sayColor, setSayColor] = useState(settings?.sayColor ?? '#000000');
-    const [emoteColor, setEmoteColor] = useState(settings?.emoteColor ?? '#68A6FF');
+    const [emoteColor, setEmoteColor] = useState(
+        settings?.emoteColor ?? '#B45309',
+    );
     const [oocColor, setOocColor] = useState(settings?.oocColor ?? '#8A8A8A');
+    const [darkSayColor, setDarkSayColor] = useState(
+        settings?.darkSayColor ?? '#FFFFFF',
+    );
+    const [darkEmoteColor, setDarkEmoteColor] = useState(
+        settings?.darkEmoteColor ?? '#FDE68A',
+    );
+    const [darkOocColor, setDarkOocColor] = useState(
+        settings?.darkOocColor ?? '#8A8A8A',
+    );
 
     useEffect(() => {
         if (open) {
@@ -72,7 +94,7 @@ export function AppSettings({
         if (!settings) {
             return;
         }
-        setSettings({...settings, ...partial});
+        setSettings({ ...settings, ...partial });
         setHasUnsavedChanges(true);
     }
 
@@ -87,6 +109,12 @@ export function AppSettings({
             setIsNumberValid(true);
             setPort(settings.port.toString());
             setIsPortValid(true);
+            setSayColor(settings.sayColor);
+            setEmoteColor(settings.emoteColor);
+            setOocColor(settings.oocColor);
+            setDarkSayColor(settings.darkSayColor);
+            setDarkEmoteColor(settings.darkEmoteColor);
+            setDarkOocColor(settings.darkOocColor);
             setHasUnsavedChanges(false);
         });
     }
@@ -114,7 +142,10 @@ export function AppSettings({
                 Settings for Conan Chat Logger.
             </DialogDescription>
             <SidebarProvider className="min-h-0 h-full">
-                <Sidebar collapsible="none" className="h-full border-r w-[200px]">
+                <Sidebar
+                    collapsible="none"
+                    className="h-full border-r w-[200px]"
+                >
                     <SidebarHeader>
                         <div className="px-2 py-1.5 text-lg font-semibold">
                             Settings
@@ -127,7 +158,9 @@ export function AppSettings({
                                 <SidebarMenu>
                                     <SidebarMenuItem>
                                         <SidebarMenuButton
-                                            isActive={selectedSection === 'general'}
+                                            isActive={
+                                                selectedSection === 'general'
+                                            }
                                             onClick={() =>
                                                 setSelectedSection('general')
                                             }
@@ -165,14 +198,14 @@ export function AppSettings({
                                                 selectedSection ===
                                                 'hidden-sessions'
                                             }
-                                            onClick={() =>
-                                                {
-                                                    setSelectedSection(
+                                            onClick={() => {
+                                                setSelectedSection(
                                                     'hidden-sessions',
-                                                )
-                                                window.api.getSettings().then(setSettings);
-                                                }
-                                            }
+                                                );
+                                                window.api
+                                                    .getSettings()
+                                                    .then(setSettings);
+                                            }}
                                         >
                                             Hidden Sessions
                                         </SidebarMenuButton>
@@ -184,7 +217,9 @@ export function AppSettings({
                 </Sidebar>
                 <SidebarInset className="h-full min-h-0 flex flex-col justify-start overflow-hidden">
                     <header className="flex min-h-16 items-center gap-2 border-b px-3 py-2">
-                        <p className="text-lg font-semibold">{sectionTitles[selectedSection]}</p>
+                        <p className="text-lg font-semibold">
+                            {sectionTitles[selectedSection]}
+                        </p>
                     </header>
                     <div className="flex-1 space-y-8 overflow-y-auto p-4">
                         {selectedSection === 'general' && (
@@ -200,10 +235,7 @@ export function AppSettings({
                                     showFieldInfo
                                     value={sessionTimeout}
                                     isValid={isNumberValid}
-                                    onValueChange={(
-                                        nextValue,
-                                        nextIsValid,
-                                    ) => {
+                                    onValueChange={(nextValue, nextIsValid) => {
                                         setSessionTimeout(nextValue);
                                         setIsNumberValid(nextIsValid);
                                         setHasUnsavedChanges(true);
@@ -244,7 +276,9 @@ export function AppSettings({
                                         setIsPortValid(nextIsValid);
                                         setHasUnsavedChanges(true);
                                         if (nextIsValid) {
-                                            void updateSettings({ port: Number(nextPort) });
+                                            void updateSettings({
+                                                port: Number(nextPort),
+                                            });
                                         }
                                     }}
                                 />
@@ -267,14 +301,41 @@ export function AppSettings({
                                     sayColor={sayColor}
                                     emoteColor={emoteColor}
                                     oocColor={oocColor}
+                                    darkSayColor={darkSayColor}
+                                    darkEmoteColor={darkEmoteColor}
+                                    darkOocColor={darkOocColor}
                                     isValidColor={isValidColor}
-                                    onChange={(sayColor, emoteColor, oocColor) => {
+                                    onChange={(
+                                        sayColor,
+                                        emoteColor,
+                                        oocColor,
+                                        darkSayColor,
+                                        darkEmoteColor,
+                                        darkOocColor,
+                                    ) => {
                                         setSayColor(sayColor);
                                         setEmoteColor(emoteColor);
                                         setOocColor(oocColor);
+                                        setDarkSayColor(darkSayColor);
+                                        setDarkEmoteColor(darkEmoteColor);
+                                        setDarkOocColor(darkOocColor);
                                         setHasUnsavedChanges(true);
-                                        if (isValidColor(sayColor) && isValidColor(emoteColor) && isValidColor(oocColor)) {
-                                            void updateSettings({ sayColor, emoteColor, oocColor });
+                                        if (
+                                            isValidColor(sayColor) &&
+                                            isValidColor(emoteColor) &&
+                                            isValidColor(oocColor) &&
+                                            isValidColor(darkSayColor) &&
+                                            isValidColor(darkEmoteColor) &&
+                                            isValidColor(darkOocColor)
+                                        ) {
+                                            void updateSettings({
+                                                sayColor,
+                                                emoteColor,
+                                                oocColor,
+                                                darkSayColor,
+                                                darkEmoteColor,
+                                                darkOocColor,
+                                            });
                                         }
                                     }}
                                 />
@@ -285,22 +346,38 @@ export function AppSettings({
                             <section className="space-y-8">
                                 <HiddenSessionsField
                                     showFieldInfo
-                                    hiddenSessions={settings?.hiddenSessions ?? []}
-                                    onChange={(hiddenSessions) => updateSettings({ hiddenSessions })}
+                                    hiddenSessions={
+                                        settings?.hiddenSessions ?? []
+                                    }
+                                    onChange={(hiddenSessions) =>
+                                        updateSettings({ hiddenSessions })
+                                    }
                                 />
                             </section>
                         )}
                     </div>
                     {hasUnsavedChanges && (
                         <footer className="flex items-center justify-end gap-2 border-t px-4 py-3">
-                            <Button variant="outline" onClick={resetSettingsState}>
+                            <Button
+                                variant="outline"
+                                onClick={resetSettingsState}
+                            >
                                 Cancel
                             </Button>
                             <Button
                                 onClick={() => {
                                     void handleSave();
                                 }}
-                                disabled={!isNumberValid || !isPortValid}
+                                disabled={
+                                    !isNumberValid ||
+                                    !isPortValid ||
+                                    !isValidColor(sayColor) ||
+                                    !isValidColor(emoteColor) ||
+                                    !isValidColor(oocColor) ||
+                                    !isValidColor(darkSayColor) ||
+                                    !isValidColor(darkEmoteColor) ||
+                                    !isValidColor(darkOocColor)
+                                }
                             >
                                 Save
                             </Button>

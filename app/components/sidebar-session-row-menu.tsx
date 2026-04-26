@@ -31,7 +31,18 @@ import { Field, FieldError, FieldLabel } from './ui/field';
 import { MessageItem } from './message-item';
 import { SidebarMenuSubButton } from '@/components/ui/sidebar';
 import { useState, useEffect } from 'react';
-import { Combobox, ComboboxValue, ComboboxContent, ComboboxItem, ComboboxList, ComboboxEmpty, ComboboxChips, ComboboxChip, ComboboxChipsInput, useComboboxAnchor } from './ui/combobox';
+import {
+    Combobox,
+    ComboboxValue,
+    ComboboxContent,
+    ComboboxItem,
+    ComboboxList,
+    ComboboxEmpty,
+    ComboboxChips,
+    ComboboxChip,
+    ComboboxChipsInput,
+    useComboboxAnchor,
+} from './ui/combobox';
 
 type SidebarSessionRowMenuProps = {
     sessions: DateSessions[];
@@ -55,8 +66,10 @@ export function SidebarSessionRowMenu({
     >();
     const [isNumberValid, setIsNumberValid] = useState<boolean>(true);
     const [splitAfter, setSplitAfter] = useState<string>('');
-    const [selectedSessions, setSelectedSessions] = useState<string[]>([session.filename.replace(/\.json$/, '')]);
-    const [previewJoin, setPreviewJoin] = useState<SessionData>()
+    const [selectedSessions, setSelectedSessions] = useState<string[]>([
+        session.filename.replace(/\.json$/, ''),
+    ]);
+    const [previewJoin, setPreviewJoin] = useState<SessionData>();
     const anchor = useComboboxAnchor();
 
     const loadSplitSessionData = (filename: string) => {
@@ -64,13 +77,11 @@ export function SidebarSessionRowMenu({
             .getCurrentSessionData(filename)
             .then(setSplitSessionData);
     };
-    
+
     useEffect(() => {
         void window.api
             .joinSessions(
-                selectedSessions.map(
-                    (filename) => `${filename}.json`,
-                ),
+                selectedSessions.map((filename) => `${filename}.json`),
                 false,
             )
             .then(setPreviewJoin);
@@ -192,14 +203,12 @@ export function SidebarSessionRowMenu({
                             <DropdownMenuItem
                                 onSelect={(event) => event.preventDefault()}
                             >
-                                <MergeIcon/> Join sessions
+                                <MergeIcon /> Join sessions
                             </DropdownMenuItem>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-sm">
                             <DialogHeader>
-                                <DialogTitle>
-                                    Join sessions
-                                </DialogTitle>
+                                <DialogTitle>Join sessions</DialogTitle>
                                 <DialogDescription>
                                     Select the sessions you want to join.
                                 </DialogDescription>
@@ -209,29 +218,44 @@ export function SidebarSessionRowMenu({
                                         autoHighlight
                                         items={[
                                             ...new Set(
-                                                sessions.flatMap((dateSessions) =>
-                                                    dateSessions.sessions.flatMap(
-                                                        (session) => session.filename.replace(/\.json$/, ''),
-                                                    ),
+                                                sessions.flatMap(
+                                                    (dateSessions) =>
+                                                        dateSessions.sessions.flatMap(
+                                                            (session) =>
+                                                                session.filename.replace(
+                                                                    /\.json$/,
+                                                                    '',
+                                                                ),
+                                                        ),
                                                 ),
                                             ),
                                         ]}
                                         value={selectedSessions}
-                                        onValueChange={(value) => setSelectedSessions(value)}
+                                        onValueChange={(value) =>
+                                            setSelectedSessions(value)
+                                        }
                                     >
-                                        <ComboboxChips ref={anchor} className="w-full">
+                                        <ComboboxChips
+                                            ref={anchor}
+                                            className="w-full"
+                                        >
                                             <ComboboxValue>
                                                 {(values) => (
                                                     <React.Fragment>
-                                                        {values.map((value: string) => (
-                                                            <ComboboxChip key={value}>
-                                                                {value}
-                                                            </ComboboxChip>
-                                                        ))}
+                                                        {values.map(
+                                                            (value: string) => (
+                                                                <ComboboxChip
+                                                                    key={value}
+                                                                >
+                                                                    {value}
+                                                                </ComboboxChip>
+                                                            ),
+                                                        )}
                                                         <ComboboxChipsInput
                                                             className="placeholder:text-muted-foreground"
                                                             placeholder={
-                                                                selectedSessions.length === 0
+                                                                selectedSessions.length ===
+                                                                0
                                                                     ? 'Add Session'
                                                                     : ''
                                                             }
@@ -240,11 +264,19 @@ export function SidebarSessionRowMenu({
                                                 )}
                                             </ComboboxValue>
                                         </ComboboxChips>
-                                        <ComboboxContent className="pointer-events-auto" anchor={anchor}>
-                                            <ComboboxEmpty>No items found.</ComboboxEmpty>
+                                        <ComboboxContent
+                                            className="pointer-events-auto"
+                                            anchor={anchor}
+                                        >
+                                            <ComboboxEmpty>
+                                                No items found.
+                                            </ComboboxEmpty>
                                             <ComboboxList>
                                                 {(item) => (
-                                                    <ComboboxItem key={item} value={item}>
+                                                    <ComboboxItem
+                                                        key={item}
+                                                        value={item}
+                                                    >
                                                         {item}
                                                     </ComboboxItem>
                                                 )}
@@ -252,7 +284,6 @@ export function SidebarSessionRowMenu({
                                         </ComboboxContent>
                                     </Combobox>
                                 </Field>
-                                    
                             </DialogHeader>
                             <MessageItem
                                 entries={previewJoin?.entries ?? []}
@@ -270,9 +301,10 @@ export function SidebarSessionRowMenu({
                                                 return;
                                             }
                                             window.api
-                                                .joinSessions   (
+                                                .joinSessions(
                                                     selectedSessions.map(
-                                                        (filename) => `${filename}.json`,
+                                                        (filename) =>
+                                                            `${filename}.json`,
                                                     ),
                                                     true,
                                                 )
