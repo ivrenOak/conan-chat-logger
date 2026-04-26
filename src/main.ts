@@ -20,7 +20,12 @@ const createWindow = () => {
     const mainWindow = new BrowserWindow({
         width: 1200,
         height: 800,
-        icon: path.join(__dirname, '../../public/logo.png'),
+        icon: MAIN_WINDOW_VITE_DEV_SERVER_URL
+            ? path.join(__dirname, './app/public/logo.png')
+            : path.join(
+                  __dirname,
+                  `../renderer/${MAIN_WINDOW_VITE_NAME}/logo.png`,
+              ),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
         },
@@ -80,7 +85,14 @@ function handleQuit() {
 }
 
 app.whenReady().then(() => {
-    tray = new Tray(path.join(__dirname, '../../public/logo.png'));
+    tray = new Tray(
+        MAIN_WINDOW_VITE_DEV_SERVER_URL
+            ? path.join(__dirname, './app/public/logo.png')
+            : path.join(
+                  __dirname,
+                  `../renderer/${MAIN_WINDOW_VITE_NAME}/logo.png`,
+              ),
+    );
     tray.setToolTip('Conan Chat Logger');
 
     const contextMenu = Menu.buildFromTemplate([

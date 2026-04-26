@@ -11,7 +11,7 @@ import path from 'node:path';
 const config: ForgeConfig = {
     packagerConfig: {
         asar: true,
-        icon: path.join(__dirname, '../public/logo.png'),
+        icon: path.join(__dirname, './app/public/logo'),
     },
     rebuildConfig: {},
     makers: [

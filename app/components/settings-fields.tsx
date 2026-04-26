@@ -14,11 +14,11 @@ import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
 import type { CheckedState } from '@radix-ui/react-checkbox';
 import { XIcon } from 'lucide-react';
-import menuScreenshot from '../../public/menu.png';
-import sudoexileScreenshot from '../../public/sudoexile.png';
-import webhookScreenshot from '../../public/webhook.png';
-import emoteTypeScreenshot from '../../public/emotetype.png';
-import totChatScreenshot from '../../public/totchat.png';
+import menuScreenshot from '../assets/menu.png';
+import sudoexileScreenshot from '../assets/sudoexile.png';
+import webhookScreenshot from '../assets/webhook.png';
+import emoteTypeScreenshot from '../assets/emotetype.png';
+import totChatScreenshot from '../assets/totchat.png';
 import { FieldGroup, FieldLabel } from './ui/field';
 
 export const settingsText = {

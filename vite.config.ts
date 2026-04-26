@@ -5,6 +5,13 @@ import path from 'path';
 
 // https://vitejs.dev/config
 export default defineConfig({
+    root: 'app',
+    build: {
+        outDir: '../.vite/renderer/main_window',
+        rollupOptions: {
+            input: 'app/index.html',
+        },
+    },
     plugins: [react(), tailwindcss()],
     resolve: {
         alias: {
