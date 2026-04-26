@@ -14,6 +14,19 @@ const config: ForgeConfig = {
         icon: path.join(__dirname, './app/public/logo'),
     },
     rebuildConfig: {},
+    publishers: [
+        {
+            name: '@electron-forge/publisher-github',
+            config: {
+                repository: {
+                    owner: 'ivrenOak',
+                    name: 'conan-chat-logger',
+                },
+                prerelease: false,
+                draft: true,
+            },
+        },
+    ],
     makers: [
         new MakerSquirrel({}),
         new MakerZIP({}, ['darwin']),

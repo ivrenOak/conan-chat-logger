@@ -5,7 +5,11 @@ import { getSettings, loadSettings } from './settings';
 import { startServer } from './server';
 import './handler/handleSettings';
 import './handler/handleSessions';
+import { updateElectronApp } from 'update-electron-app';
 
+if (app.isPackaged) {
+    updateElectronApp();
+}
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
     app.quit();
