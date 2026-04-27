@@ -13,7 +13,7 @@ The Conan Chat Logger is a tool for logging Conan chats, with built-in features 
 
 [![Download from GitHub](https://img.shields.io/badge/Windows_Installer-Download-14ba30?labelColor=333&style=for-the-badge)](https://github.com/ivrenOak/conan-chat-logger/releases/download/v1.0.1/Conan.Chat.Logger-1.0.1.Setup.exe)
 
-Or download from [Releases](https://github.com/ivrenOak/conan-chat-logger/releases) the conan-chat-logger.setup.exe and run it.
+Or download from [Releases](https://github.com/ivrenOak/conan-chat-logger/releases/latest) the conan-chat-logger.setup.exe and run it.
 
 ## Updating
 
