@@ -154,6 +154,7 @@ export function SidebarSessionRowMenu({
                                 <MessageItem
                                     entries={splitSessionData?.entries ?? []}
                                     showNumbers
+                                    onEditMessageSave={() => {}}
                                 />
                             </div>
                             <DialogFooter>
@@ -288,6 +289,7 @@ export function SidebarSessionRowMenu({
                                 <MessageItem
                                     entries={previewJoin?.entries ?? []}
                                     showNumbers
+                                    onEditMessageSave={() => {}}
                                 />
                             </Field>
                             <DialogFooter>

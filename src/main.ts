@@ -7,7 +7,7 @@ import './handler/handleSettings';
 import './handler/handleSessions';
 import { updateElectronApp } from 'update-electron-app';
 
-if (app.isPackaged) {
+if (app.isPackaged && !process.argv.includes('--squirrel-firstrun')) {
     updateElectronApp();
 }
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -25,7 +25,7 @@ const createWindow = () => {
         width: 1200,
         height: 800,
         icon: MAIN_WINDOW_VITE_DEV_SERVER_URL
-            ? path.join(__dirname, './app/public/logo.png')
+            ? path.join(__dirname, '../../app/public/logo.png')
             : path.join(
                   __dirname,
                   `../renderer/${MAIN_WINDOW_VITE_NAME}/logo.png`,
@@ -91,7 +91,7 @@ function handleQuit() {
 app.whenReady().then(() => {
     tray = new Tray(
         MAIN_WINDOW_VITE_DEV_SERVER_URL
-            ? path.join(__dirname, './app/public/logo.png')
+            ? path.join(__dirname, '../../app/public/logo.png')
             : path.join(
                   __dirname,
                   `../renderer/${MAIN_WINDOW_VITE_NAME}/logo.png`,

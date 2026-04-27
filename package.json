@@ -1,7 +1,7 @@
 {
     "name": "conan_chat_logger",
     "productName": "Conan Chat Logger",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Conan chat logger",
     "main": ".vite/build/main.js",
     "private": true,
