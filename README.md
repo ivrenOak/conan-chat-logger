@@ -25,14 +25,5 @@ Have you found a bug? Please report it in the issues tab.
 
 Do you have questions or feature requests? Also if you don't have anything specific to say I'd love to hear back from you. Feedback is highly appreciated.
 
-Join my [Discord](https://discord.gg/qUaaUK3v) and feel free to write.
-
-
-## Bug Reports, Feature Requests, Feedback
-
-Have you found a bug? Please report it in the issues tab.
-
-Do you have questions or feature requests? Also if you don't have anything specific to say I'd love to hear back from you. Feedback is highly appreciated.
-
-Join my [Discord](https://discord.gg/qUaaUK3v) and feel free to write.
+Join my [Discord](https://discord.gg/qUaaUK3v) and feel free to message me.
 
