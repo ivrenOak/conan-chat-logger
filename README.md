@@ -15,6 +15,19 @@ The Conan Chat Logger is a tool for logging Conan chats, with built-in features 
 
 Or download from [Releases](https://github.com/ivrenOak/conan-chat-logger/releases/latest) the conan-chat-logger.setup.exe and run it.
 
+## Virus Scan
+Of course it's not really trustworthy to click on the `Run anyway` Button of a tool where you don't know the author and that's randomly published in the internet.
+
+Here some information about the author: I joined the conan RP community roughly a year ago. As I'm quite bad in initiating RP and not active on a lot of different servers you might not have met my Character yet.
+
+The .exe has been tested with VirusTotal. You can easily upload it there and test it again to be sure about it: (VirusTotal)[https://www.virustotal.com/gui/home/upload]
+
+![Conan chat Logger](app/assets/virusscan.png)
+
+One test failed. My research showed that this is likely to be false positive for unknown .exe files. But of course you can research it by yourself again.
+
+![Conan chat Logger](app/assets/trapmineerror.png)
+
 ## Updating
 
 The app includes an autoupdater.
