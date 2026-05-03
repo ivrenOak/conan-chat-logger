@@ -555,5 +555,7 @@ async function getSessions(): Promise<DateSessions[]> {
         dateSessions.sessions = ordered.map(({ session }) => session);
     }
 
+    sessionsByDate.sort((a, b) => b.date.getTime() - a.date.getTime());
+
     return sessionsByDate;
 }
