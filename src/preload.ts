@@ -36,7 +36,8 @@ contextBridge.exposeInMainWorld('api', {
         sender: string,
         message: string,
         index: number,
-    ) => ipcRenderer.invoke('save-message', filename, sender, message, index),
+    ): Promise<string | undefined> =>
+        ipcRenderer.invoke('save-message', filename, sender, message, index),
     importConanAuditLogs: (files: string[]) =>
         ipcRenderer.invoke('import-conan-audit-logs', files),
 });

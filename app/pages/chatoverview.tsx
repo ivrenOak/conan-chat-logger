@@ -30,16 +30,19 @@ export function ChatOverview() {
         message: string,
         index: number,
     ) {
-        await window.api.saveMessage(
-            currentSessionFile ?? '',
+        if (!currentSessionFile) {
+            return;
+        }
+        const filenameAfterSave = await window.api.saveMessage(
+            currentSessionFile,
             sender,
             message,
             index,
         );
-        const data = await window.api.getCurrentSessionData(
-            currentSessionFile ?? '',
-        );
-        setCurrentSessionData(data);
+        window.api.getSessions().then((sessions) => {
+            setSessions(sessions);
+            setCurrentSessionFile(filenameAfterSave);
+        });
     }
 
     useEffect(() => {

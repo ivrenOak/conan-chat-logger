@@ -291,19 +291,16 @@ ipcMain.handle(
     ) => {
         if (!(await checkSessionFileExists(filename))) {
             console.error('Session file not found');
-            return;
+            return undefined;
         }
-        const data = await fs.readFile(
-            path.join(getSettings().dataDir, filename),
-            'utf8',
-        );
+        const oldPath = path.join(getSettings().dataDir, filename);
+        const data = await fs.readFile(oldPath, 'utf8');
         const parsed = JSON.parse(data) as SessionData;
         if (index < 0 || index >= parsed.entries.length) {
             console.error('Index out of range');
-            return;
+            return undefined;
         }
         parsed.entries[index] = { ...parsed.entries[index], sender, message };
-        let sessionPath = path.join(getSettings().dataDir, filename);
 
         const filesInDataDir = await fs.readdir(getSettings().dataDir);
         const date = filename.slice(0, 8);
@@ -312,18 +309,17 @@ ipcMain.handle(
                 parsed.entries.map((entry) => entry.sender.replace(/\W/g, '')),
             ),
         ).filter((sender) => sender.length > 0);
-        sessionPath = createSessionPath(filesInDataDir, senders, date);
-        await fs.rename(
-            path.join(getSettings().dataDir, filename),
-            sessionPath,
-        );
 
+        const sessionPath = createSessionPath(filesInDataDir, senders, date);
+        if (oldPath !== sessionPath) {
+            await fs.rename(oldPath, sessionPath);
+        }
         await fs.writeFile(
             sessionPath,
             JSON.stringify(parsed, undefined, 2),
             'utf8',
         );
-        return;
+        return path.basename(sessionPath);
     },
 );
 

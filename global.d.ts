@@ -39,7 +39,7 @@ declare global {
                 sender: string,
                 message: string,
                 index: number,
-            ) => Promise<void>;
+            ) => Promise<string | undefined>;
             importConanAuditLogs: (files: string[]) => Promise<void>;
         };
     }
