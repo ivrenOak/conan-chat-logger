@@ -1,4 +1,4 @@
-import { getSettings } from './settings';
+import { getSettings, setSettings } from './settings';
 import { promises as fs } from 'fs';
 import path from 'node:path';
 
@@ -35,30 +35,40 @@ export async function saveMessage(
         throw new Error('Sender and message are required');
     }
 
+    const timestamp = new Date();
+    const activeSession = getSettings().activeSession;
+    console.log('activeSession', activeSession);
+    let lastSessionPath: string | null = null;
+    let lastSessionData: SessionData | null = null;
+
+    if (activeSession !== '') {
+        try {
+            lastSessionPath = path.join(getSettings().dataDir, activeSession);
+
+            if (lastSessionPath) {
+                const existingContent = await fs.readFile(
+                    lastSessionPath,
+                    'utf8',
+                );
+                lastSessionData = JSON.parse(existingContent) as SessionData;
+                if (
+                    timestamp.getTime() -
+                        new Date(
+                            JSON.parse(existingContent).session.updatedAt,
+                        ).getTime() >
+                    getSettings().sessionGapMinutes * 60 * 1000
+                ) {
+                    lastSessionPath = null;
+                }
+            }
+        } catch (error) {
+            lastSessionPath = null;
+        }
+    }
+
     const safeSender = sender.replace(/\W/g, '');
     const files = await fs.readdir(getSettings().dataDir);
 
-    const latestSession =
-        (
-            await Promise.all(
-                files.map(async (name) => {
-                    const fullPath = path.join(getSettings().dataDir, name);
-                    const stat = await fs.stat(fullPath);
-                    return {
-                        name,
-                        path: fullPath,
-                        time: stat.birthtimeMs,
-                        isFile: stat.isFile(),
-                    };
-                }),
-            )
-        )
-            .filter((f) => f.isFile && SESSION_FILE_PATTERN.test(f.name))
-            .sort((a, b) => b.time - a.time)[0] ?? null;
-
-    console.log(latestSession);
-
-    const timestamp = new Date();
     const date =
         timestamp.getFullYear() +
         String(timestamp.getMonth() + 1).padStart(2, '0') +
@@ -69,12 +79,10 @@ export async function saveMessage(
         message,
     };
 
-    if (
-        latestSession === null ||
-        timestamp.getTime() - latestSession.time >
-            getSettings().sessionGapMinutes * 60 * 1000
-    ) {
-        const newSessionPath = createSessionPath(files, [safeSender], date);
+    let newSessionPath: string | null = null;
+
+    if (lastSessionPath === null || lastSessionData === null) {
+        newSessionPath = createSessionPath(files, [safeSender], date);
         const initialSession: SessionData = {
             session: {
                 notes: '',
@@ -89,30 +97,28 @@ export async function saveMessage(
             JSON.stringify(initialSession, undefined, 2),
             'utf8',
         );
-        return;
     } else {
-        const existingContent = await fs.readFile(latestSession.path, 'utf8');
-        const parsed = JSON.parse(existingContent) as SessionData;
-        parsed.entries.push(entry);
-        parsed.session.updatedAt = timestamp.toISOString();
+        console.log('lastSessionData', lastSessionData);
+        lastSessionData.entries.push(entry);
+        lastSessionData.session.updatedAt = timestamp.toISOString();
 
-        const senders = latestSession.name
-            .replace(/\.json$/, '')
+        const senders = activeSession
+            .replace(/\.json$/i, '')
             .split('-')
             .slice(1);
-        let sessionPath = latestSession.path;
+        newSessionPath = lastSessionPath;
         if (!senders.includes(safeSender)) {
             senders.push(safeSender);
-            sessionPath = createSessionPath(files, senders, date);
-            await fs.rename(latestSession.path, sessionPath);
+            newSessionPath = createSessionPath(files, senders, date);
+            await fs.rename(lastSessionPath, newSessionPath);
         }
-
         await fs.writeFile(
-            sessionPath,
-            JSON.stringify(parsed, undefined, 2),
+            newSessionPath,
+            JSON.stringify(lastSessionData, undefined, 2),
             'utf8',
         );
     }
+    setSettings({ activeSession: path.basename(newSessionPath ?? '') });
 }
 
 export function createSessionPath(
@@ -120,7 +126,6 @@ export function createSessionPath(
     senders: string[],
     date: string,
 ): string {
-
     let counter = 1;
     let sessionName = `${date}-${senders.join('-')}.json`;
     while (files.includes(sessionName)) {

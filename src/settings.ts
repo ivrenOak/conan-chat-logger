@@ -7,6 +7,7 @@ export interface Settings {
     onboardingCompleted: boolean;
     theme: 'light' | 'dark' | 'system';
     hiddenSessions: string[];
+    activeSession: string;
     emoteType:
         | 'noFormating'
         | 'quoteExclude'
@@ -29,6 +30,7 @@ let settings: Settings = {
     onboardingCompleted: false,
     theme: 'system',
     hiddenSessions: [],
+    activeSession: '',
     emoteType: 'noFormating',
     closeToSystemTray: false,
     sayColor: '#000000',
@@ -45,7 +47,11 @@ export async function loadSettings() {
             'conan-chat-logger-config.json',
             'utf8',
         );
-        settings = JSON.parse(config) as Settings;
+        const parsedSettings = JSON.parse(config);
+        if (!parsedSettings.activeSession) {
+            parsedSettings.activeSession = '';
+        }
+        settings = parsedSettings as Settings;
     } catch (error) {
         saveSettings();
     }
