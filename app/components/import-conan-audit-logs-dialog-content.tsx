@@ -21,16 +21,19 @@ export function ImportConanAuditLogsDialogContent() {
                 Select one or more files to import. Only files in the default
                 Conan audit log format are supported. <br />
                 <br />
-                Example format:<br />
-                23:40 [Say] [Common] Alice enters the room.<br />
-                23:41 Bob [Say] [Common] "Hello, Alice!"<br />
-
+                Example format:
+                <br />
+                23:40 [Say] [Common] Alice enters the room.
+                <br />
+                23:41 Bob [Say] [Common] &quot;Hello, Alice!&quot;
+                <br />
                 <br /> Sender name parsing is not always exact. You can adjust
                 sender names manually for each message after opening the
                 imported session.
                 <br />
                 <br />
-                The file will be showed under the date of the import. You can change the date later in the session menu.
+                The file will be showed under the date of the import. You can
+                change the date later in the session menu.
             </DialogDescription>
             <Button
                 variant="outline"

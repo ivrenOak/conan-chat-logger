@@ -12,9 +12,10 @@ import { MessageItem } from '@/components/message-item';
 import { TitleDialog } from '@/components/title-dialog';
 import { AppSettings } from '@/components/settings';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { SettingsIcon } from 'lucide-react';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { MessageSquareHeartIcon, SettingsIcon } from 'lucide-react';
 import { Settings } from 'src/settings';
+import { FeedbackDialog } from '@/components/feedback-dialog';
 
 export function ChatOverview() {
     const [sessions, setSessions] = useState<DateSessions[]>([]);
@@ -136,6 +137,16 @@ export function ChatOverview() {
                             </p>
                         </div>
                     </div>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon-sm">
+                                <MessageSquareHeartIcon />
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <FeedbackDialog />
+                        </DialogContent>
+                    </Dialog>
                     <ModeToggle />
                     <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
                         <DialogTrigger asChild>

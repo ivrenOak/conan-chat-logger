@@ -366,42 +366,58 @@ ipcMain.handle('import-conan-audit-logs', async (event, files: string[]) => {
     }
 });
 
-ipcMain.handle('change-session-date', async (event, filename: string, date: Date) => {
-    if (!(await checkSessionFileExists(filename))) {
-        console.error('Session file not found');
-        return;
-    }
-    const data = await fs.readFile(path.join(getSettings().dataDir, filename), 'utf8');
-    const parsed = JSON.parse(data) as SessionData;
-    let lastAdjusted: Date | undefined;
-    for (const entry of parsed.entries) {
-        const newDate = new Date(entry.timestamp);
-        newDate.setFullYear(date.getFullYear());
-        newDate.setMonth(date.getMonth());
-        newDate.setDate(date.getDate());
-        if (
-            lastAdjusted !== undefined &&
-            newDate.getTime() < lastAdjusted.getTime()
-        ) {
-            newDate.setDate(newDate.getDate() + 1);
+ipcMain.handle(
+    'change-session-date',
+    async (event, filename: string, date: Date) => {
+        if (!(await checkSessionFileExists(filename))) {
+            console.error('Session file not found');
+            return;
         }
-        entry.timestamp = newDate.toISOString();
-        lastAdjusted = newDate;
-    }
-    parsed.session.createdAt =
-        parsed.entries[0]?.timestamp ?? date.toISOString();
-    parsed.session.updatedAt =
-        parsed.entries[parsed.entries.length - 1]?.timestamp ??
-        date.toISOString();
-    const dateString = date.getFullYear() + String(date.getMonth() + 1).padStart(2, '0') + String(date.getDate()).padStart(2, '0');
-    const filesInDataDir = await fs.readdir(getSettings().dataDir);
-    const senders = filename.split('-').slice(1).map((sender) => sender.replace(/\.json$/, ''));
-    const newPath = createSessionPath(filesInDataDir, senders, dateString);
+        const data = await fs.readFile(
+            path.join(getSettings().dataDir, filename),
+            'utf8',
+        );
+        const parsed = JSON.parse(data) as SessionData;
+        let lastAdjusted: Date | undefined;
+        for (const entry of parsed.entries) {
+            const newDate = new Date(entry.timestamp);
+            newDate.setFullYear(date.getFullYear());
+            newDate.setMonth(date.getMonth());
+            newDate.setDate(date.getDate());
+            if (
+                lastAdjusted !== undefined &&
+                newDate.getTime() < lastAdjusted.getTime()
+            ) {
+                newDate.setDate(newDate.getDate() + 1);
+            }
+            entry.timestamp = newDate.toISOString();
+            lastAdjusted = newDate;
+        }
+        parsed.session.createdAt =
+            parsed.entries[0]?.timestamp ?? date.toISOString();
+        parsed.session.updatedAt =
+            parsed.entries[parsed.entries.length - 1]?.timestamp ??
+            date.toISOString();
+        const dateString =
+            date.getFullYear() +
+            String(date.getMonth() + 1).padStart(2, '0') +
+            String(date.getDate()).padStart(2, '0');
+        const filesInDataDir = await fs.readdir(getSettings().dataDir);
+        const senders = filename
+            .split('-')
+            .slice(1)
+            .map((sender) => sender.replace(/\.json$/, ''));
+        const newPath = createSessionPath(filesInDataDir, senders, dateString);
 
-    await fs.rename(path.join(getSettings().dataDir, filename), newPath);
-    await fs.writeFile(newPath, JSON.stringify(parsed, undefined, 2), 'utf8');
-    return;
-});
+        await fs.rename(path.join(getSettings().dataDir, filename), newPath);
+        await fs.writeFile(
+            newPath,
+            JSON.stringify(parsed, undefined, 2),
+            'utf8',
+        );
+        return;
+    },
+);
 
 type ParsedAuditLine = {
     time: string;

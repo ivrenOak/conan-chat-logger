@@ -1,7 +1,7 @@
 ﻿# Conan Chat Logger
 
 [![MIT License](https://img.shields.io/badge/License-MIT-0eab32.svg?labelColor=333&style=flat-square)](https://github.com/ivrenOak/conan-chat-logger/blob/main/LICENSE)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Server-5865F2?logo=discord&logoColor=white&style=flat-square)](https://discord.gg/qUaaUK3v)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Server-5865F2?logo=discord&logoColor=white&style=flat-square)](https://discord.gg/GkzYNKvjPJ)
 [![Downloads](https://img.shields.io/github/downloads/ivrenOak/conan-chat-logger/total?label=Downloads&labelColor=333&color=49a800&style=flat-square)](https://github.com/ivrenOak/conan-chat-logger/releases)
 [![Latest Version](https://img.shields.io/github/v/release/ivrenOak/conan-chat-logger?label=Release&labelColor=333&color=904fd1&style=flat-square)](https://github.com/ivrenOak/conan-chat-logger/releases/latest)
 
@@ -16,6 +16,7 @@ The Conan Chat Logger is a tool for logging Conan chats, with built-in features 
 Or download from [Releases](https://github.com/ivrenOak/conan-chat-logger/releases/latest) the conan-chat-logger.setup.exe and run it.
 
 ## Virus Scan
+
 Of course it's not really trustworthy to click on the `Run anyway` Button of a tool where you don't know the author and that's randomly published in the internet.
 
 Here some information about the author: I joined the conan RP community roughly a year ago. As I'm quite bad in initiating RP and not active on a lot of different servers you might not have met my Character yet.
@@ -38,5 +39,4 @@ Have you found a bug? Please report it in the issues tab.
 
 Do you have questions or feature requests? Also if you don't have anything specific to say I'd love to hear back from you. Feedback is highly appreciated.
 
-Join my [Discord](https://discord.gg/qUaaUK3v) and feel free to message me.
-
+Join my [Discord](https://discord.gg/GkzYNKvjPJ) and feel free to message me.

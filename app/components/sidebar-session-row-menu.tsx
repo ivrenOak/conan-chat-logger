@@ -47,7 +47,6 @@ import {
 } from './ui/combobox';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
-import { format } from 'date-fns';
 
 type SidebarSessionRowMenuProps = {
     date: Date;
@@ -165,7 +164,9 @@ export function SidebarSessionRowMenu({
                                 <MessageItem
                                     entries={splitSessionData?.entries ?? []}
                                     showNumbers
-                                    onEditMessageSave={() => {}}
+                                    onEditMessageSave={() => {
+                                        return;
+                                    }}
                                 />
                             </div>
                             <DialogFooter>
@@ -300,7 +301,9 @@ export function SidebarSessionRowMenu({
                                 <MessageItem
                                     entries={previewJoin?.entries ?? []}
                                     showNumbers
-                                    onEditMessageSave={() => {}}
+                                    onEditMessageSave={() => {
+                                        return;
+                                    }}
                                 />
                             </Field>
                             <DialogFooter>
@@ -366,15 +369,24 @@ export function SidebarSessionRowMenu({
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
-                                        variant="outline"
-                                        data-empty={!newDate}
-                                        className="justify-between text-left"
+                                            variant="outline"
+                                            data-empty={!newDate}
+                                            className="justify-between text-left"
                                         >
-                                        {newDate ? newDate.toLocaleDateString(locale): <span>Pick a date</span>}
-                                        <ChevronDownIcon />
+                                            {newDate ? (
+                                                newDate.toLocaleDateString(
+                                                    locale,
+                                                )
+                                            ) : (
+                                                <span>Pick a date</span>
+                                            )}
+                                            <ChevronDownIcon />
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                    <PopoverContent
+                                        className="w-auto p-0 pointer-events-auto"
+                                        align="start"
+                                    >
                                         <Calendar
                                             mode="single"
                                             required
@@ -387,14 +399,22 @@ export function SidebarSessionRowMenu({
                             </Field>
                             <DialogFooter>
                                 <DialogClose asChild>
-                                    <Button variant="outline" onClick={() => setNewDate(date)}>Cancel</Button>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setNewDate(date)}
+                                    >
+                                        Cancel
+                                    </Button>
                                 </DialogClose>
                                 <DialogClose asChild>
                                     <Button
                                         type="submit"
                                         onClick={() => {
                                             window.api
-                                                .changeSessionDate(session.filename, newDate)
+                                                .changeSessionDate(
+                                                    session.filename,
+                                                    newDate,
+                                                )
                                                 .then(() => {
                                                     window.api
                                                         .getSessions()
