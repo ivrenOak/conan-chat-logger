@@ -11,7 +11,7 @@ import {
 import { Button } from './ui/button';
 import { DialogClose } from './ui/dialog';
 import { Input } from './ui/input';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 type TitleDialogProps = {
     titleValue: string;
@@ -22,7 +22,13 @@ export function TitleDialog({ titleValue, setTitleValue }: TitleDialogProps) {
     const [newValue, setNewValue] = useState(titleValue);
 
     return (
-        <Dialog>
+        <Dialog
+            onOpenChange={(open) => {
+                if (open) {
+                    setNewValue(titleValue);
+                }
+            }}
+        >
             <DialogTrigger asChild>
                 <Button variant="ghost" size="icon-sm">
                     <Pencil className="size-4 text-muted-foreground" />
