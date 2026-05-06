@@ -40,4 +40,6 @@ contextBridge.exposeInMainWorld('api', {
         ipcRenderer.invoke('save-message', filename, sender, message, index),
     importConanAuditLogs: (files: string[]) =>
         ipcRenderer.invoke('import-conan-audit-logs', files),
+    changeSessionDate: (filename: string, date: Date) =>
+        ipcRenderer.invoke('change-session-date', filename, date),
 });

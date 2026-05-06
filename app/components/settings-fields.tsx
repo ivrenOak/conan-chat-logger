@@ -53,7 +53,7 @@ export const settingsText = {
         id: 'set-session-timeout',
         title: 'Set the session timeout',
         description:
-            'If you stop chatting for the selected amount of time, a new session will be started.',
+            'If you stop chatting for the selected amount of time (minutes), a new session will be started.',
     },
 } as const;
 

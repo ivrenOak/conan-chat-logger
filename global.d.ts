@@ -41,6 +41,7 @@ declare global {
                 index: number,
             ) => Promise<string | undefined>;
             importConanAuditLogs: (files: string[]) => Promise<void>;
+            changeSessionDate: (filename: string, date: Date) => Promise<void>;
         };
     }
 }

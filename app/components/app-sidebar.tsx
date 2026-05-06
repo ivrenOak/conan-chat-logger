@@ -182,6 +182,8 @@ export function AppSidebar({
                                                         </SidebarMenuSubButton>
 
                                                         <SidebarSessionRowMenu
+                                                            locale={locale}
+                                                            date={item.date}
                                                             sessions={sessions}
                                                             session={session}
                                                             currentSessionFile={

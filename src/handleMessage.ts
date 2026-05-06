@@ -37,7 +37,6 @@ export async function saveMessage(
 
     const timestamp = new Date();
     const activeSession = getSettings().activeSession;
-    console.log('activeSession', activeSession);
     let lastSessionPath: string | null = null;
     let lastSessionData: SessionData | null = null;
 
@@ -59,10 +58,12 @@ export async function saveMessage(
                     getSettings().sessionGapMinutes * 60 * 1000
                 ) {
                     lastSessionPath = null;
+                    lastSessionData = null;
                 }
             }
         } catch (error) {
             lastSessionPath = null;
+            lastSessionData = null;
         }
     }
 
@@ -98,7 +99,6 @@ export async function saveMessage(
             'utf8',
         );
     } else {
-        console.log('lastSessionData', lastSessionData);
         lastSessionData.entries.push(entry);
         lastSessionData.session.updatedAt = timestamp.toISOString();
 

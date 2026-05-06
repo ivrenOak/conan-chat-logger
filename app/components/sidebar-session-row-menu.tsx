@@ -5,6 +5,8 @@ import {
     MergeIcon,
     SplitIcon,
     Trash2Icon,
+    ChevronDownIcon,
+    CalendarIcon,
 } from 'lucide-react';
 import { DateSessions } from 'src/handler/handleSessions';
 import { SessionData } from 'src/handleMessage';
@@ -43,8 +45,13 @@ import {
     ComboboxChipsInput,
     useComboboxAnchor,
 } from './ui/combobox';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Calendar } from './ui/calendar';
+import { format } from 'date-fns';
 
 type SidebarSessionRowMenuProps = {
+    date: Date;
+    locale: string;
     sessions: DateSessions[];
     session: DateSessions['sessions'][number];
     currentSessionFile: string | undefined;
@@ -54,6 +61,8 @@ type SidebarSessionRowMenuProps = {
 };
 
 export function SidebarSessionRowMenu({
+    date,
+    locale,
     sessions,
     session,
     currentSessionFile,
@@ -70,6 +79,8 @@ export function SidebarSessionRowMenu({
         session.filename.replace(/\.json$/, ''),
     ]);
     const [previewJoin, setPreviewJoin] = useState<SessionData>();
+    const [newDate, setNewDate] = useState<Date>(date);
+
     const anchor = useComboboxAnchor();
 
     const loadSplitSessionData = (filename: string) => {
@@ -330,6 +341,68 @@ export function SidebarSessionRowMenu({
                                         }}
                                     >
                                         Join Session
+                                    </Button>
+                                </DialogClose>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <DropdownMenuItem
+                                onSelect={(event) => event.preventDefault()}
+                            >
+                                <CalendarIcon />
+                                Change date
+                            </DropdownMenuItem>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-sm">
+                            <DialogHeader>
+                                <DialogTitle>Change date</DialogTitle>
+                                <DialogDescription>
+                                    Enter a new date for this session.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <Field>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                        variant="outline"
+                                        data-empty={!newDate}
+                                        className="justify-between text-left"
+                                        >
+                                        {newDate ? newDate.toLocaleDateString(locale): <span>Pick a date</span>}
+                                        <ChevronDownIcon />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            required
+                                            defaultMonth={newDate}
+                                            selected={newDate}
+                                            onSelect={setNewDate}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            </Field>
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button variant="outline" onClick={() => setNewDate(date)}>Cancel</Button>
+                                </DialogClose>
+                                <DialogClose asChild>
+                                    <Button
+                                        type="submit"
+                                        onClick={() => {
+                                            window.api
+                                                .changeSessionDate(session.filename, newDate)
+                                                .then(() => {
+                                                    window.api
+                                                        .getSessions()
+                                                        .then(setSessions);
+                                                });
+                                        }}
+                                    >
+                                        Change Date
                                     </Button>
                                 </DialogClose>
                             </DialogFooter>
