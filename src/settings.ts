@@ -8,6 +8,7 @@ export interface Settings {
     theme: 'light' | 'dark' | 'system';
     hiddenSessions: string[];
     activeSession: string;
+    //autoUpdate?: boolean;
     emoteType:
         | 'noFormating'
         | 'quoteExclude'
@@ -31,6 +32,7 @@ let settings: Settings = {
     theme: 'system',
     hiddenSessions: [],
     activeSession: '',
+    // autoUpdate: undefined,
     emoteType: 'noFormating',
     closeToSystemTray: false,
     sayColor: '#000000',

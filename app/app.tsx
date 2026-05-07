@@ -20,7 +20,7 @@ export function App() {
             {settings?.onboardingCompleted ? (
                 <ChatOverview />
             ) : (
-                <Onboarding settings={settings!} setSettings={setSettings} />
+                <Onboarding settings={settings} setSettings={setSettings} />
             )}
         </ThemeProvider>
     );
