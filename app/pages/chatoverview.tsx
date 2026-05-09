@@ -23,7 +23,7 @@ export function ChatOverview() {
     const [currentSessionData, setCurrentSessionData] = useState<SessionData>();
     const currentEntries = currentSessionData?.entries ?? [];
     const [search, setSearch] = useState('');
-    const [settings, setSettings] = useState<Settings>();
+    const [settings] = useState<Settings>();
     const [settingsOpen, setSettingsOpen] = useState(false);
     // const [autoUpdateDialogOpen, setAutoUpdateDialogOpen] = useState(false);
 
@@ -184,56 +184,6 @@ export function ChatOverview() {
                         }
                     />
                 </div>
-                {/* <Dialog
-                    open={autoUpdateDialogOpen}
-                    onOpenChange={setAutoUpdateDialogOpen}
-                >
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Auto Update</DialogTitle>
-                        </DialogHeader>
-                        <DialogDescription>
-                            Till now auto updates have been enabled
-                            automatically. If you want to be asked before each
-                            update, uncheck the checkbox below.
-                            <br />
-                            Please click save anyway to persist your wishes.
-                        </DialogDescription>
-                        <Field orientation="horizontal">
-                            <Checkbox
-                                checked={settings?.autoUpdate ?? true}
-                                onCheckedChange={(checked) => {
-                                    if (!settings) {
-                                        return;
-                                    }
-                                    setSettings({
-                                        ...settings,
-                                        autoUpdate:
-                                            checked === 'indeterminate'
-                                                ? undefined
-                                                : checked,
-                                    });
-                                }}
-                            />
-                            <Label>Update automatically</Label>
-                        </Field>
-                        <DialogFooter>
-                            <DialogClose asChild>
-                                <Button
-                                    type="submit"
-                                    onClick={() => {
-                                        window.api.setSettings({
-                                            autoUpdate:
-                                                settings?.autoUpdate ?? true,
-                                        });
-                                    }}
-                                >
-                                    Save
-                                </Button>
-                            </DialogClose>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog> */}
             </SidebarInset>
         </SidebarProvider>
     );

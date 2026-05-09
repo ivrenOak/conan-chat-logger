@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs';
+import { app } from 'electron';
 
 export interface Settings {
     sessionGapMinutes: number;
@@ -8,7 +9,6 @@ export interface Settings {
     theme: 'light' | 'dark' | 'system';
     hiddenSessions: string[];
     activeSession: string;
-    //autoUpdate?: boolean;
     emoteType:
         | 'noFormating'
         | 'quoteExclude'
@@ -32,7 +32,6 @@ let settings: Settings = {
     theme: 'system',
     hiddenSessions: [],
     activeSession: '',
-    // autoUpdate: undefined,
     emoteType: 'noFormating',
     closeToSystemTray: false,
     sayColor: '#000000',
@@ -45,10 +44,7 @@ let settings: Settings = {
 
 export async function loadSettings() {
     try {
-        const config = await fs.readFile(
-            'conan-chat-logger-config.json',
-            'utf8',
-        );
+        const config = await fs.readFile(app.getPath('userData'), 'utf8');
         const parsedSettings = JSON.parse(config);
         if (!parsedSettings.activeSession) {
             parsedSettings.activeSession = '';
@@ -64,7 +60,7 @@ async function saveSettings() {
         await fs.mkdir(settings.dataDir, { recursive: true });
     }
     await fs.writeFile(
-        'conan-chat-logger-config.json',
+        app.getPath('userData'),
         JSON.stringify(settings, undefined, 2),
         'utf8',
     );

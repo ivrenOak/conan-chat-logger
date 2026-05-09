@@ -5,11 +5,9 @@ import { getSettings, loadSettings } from './settings';
 import { startServer } from './server';
 import './handler/handleSettings';
 import './handler/handleSessions';
-import { updateElectronApp } from 'update-electron-app';
+import { autoUpdater } from 'electron-updater';
+import { dialog } from 'electron';
 
-if (app.isPackaged && !process.argv.includes('--squirrel-firstrun')) {
-    updateElectronApp();
-}
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
     app.quit();
@@ -110,6 +108,34 @@ app.whenReady().then(() => {
             BrowserWindow.getAllWindows()[0].focus();
         }
     });
+});
+
+app.whenReady().then(() => {
+    if (!app.isPackaged || process.argv.includes('--squirrel-firstrun')) {
+        return;
+    }
+
+    autoUpdater.checkForUpdates();
+});
+
+autoUpdater.on('update-available', async () => {
+    // only needed when autoDownload = false
+    const result = await dialog.showMessageBox({
+        type: 'info',
+        buttons: ['Update now', 'Later'],
+        defaultId: 0,
+        cancelId: 1,
+        title: 'Update available',
+        message: 'A new version is available.',
+    });
+
+    if (result.response === 0) {
+        autoUpdater.downloadUpdate();
+    }
+});
+
+autoUpdater.on('update-downloaded', async () => {
+    autoUpdater.quitAndInstall();
 });
 
 startServer();
