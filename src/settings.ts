@@ -27,7 +27,7 @@ export interface Settings {
 
 let settings: Settings = {
     sessionGapMinutes: 60,
-    dataDir: './conan-chats',
+    dataDir: path.join(app.getPath('userData'), 'conan-chats'),
     port: 30128,
     onboardingCompleted: false,
     theme: 'system',
