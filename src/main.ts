@@ -5,20 +5,9 @@ import { getSettings, loadSettings } from './settings';
 import { startServer } from './server';
 import './handler/handleSettings';
 import './handler/handleSessions';
-import { autoUpdater } from 'electron-updater';
-import { dialog } from 'electron';
+import { checkAndInstallUpdate } from './checkUpdate';
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (started) {
-    app.quit();
-}
-
-let tray: Tray | null = null;
-
-loadSettings();
-
-const createWindow = () => {
-    // Create the browser window.
+function createWindow(): void {
     const mainWindow = new BrowserWindow({
         width: 1200,
         height: 800,
@@ -33,7 +22,6 @@ const createWindow = () => {
         },
     });
 
-    // and load the index.html of the app.
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
         mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
     } else {
@@ -46,96 +34,82 @@ const createWindow = () => {
     }
 
     // Open the DevTools.
-    //mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
     mainWindow.removeMenu();
-    mainWindow.on('close', (event) => {
+    mainWindow.on('close', () => {
         mainWindow.close();
     });
-};
+}
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
-
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
-    if (!getSettings().closeToSystemTray) {
-        if (process.platform !== 'darwin') {
-            app.quit();
-        }
-    }
-});
-
-app.on('activate', () => {
-    // On OS X it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) {
+/** Focus existing UI or open one (duplicate .exe shortcut, tray open, etc.). */
+function focusOrCreateMainWindow(): void {
+    const wins = BrowserWindow.getAllWindows();
+    if (wins.length === 0) {
         createWindow();
+        return;
     }
-});
+    const w = wins[0];
+    if (w.isMinimized()) {
+        w.restore();
+    }
+    w.show();
+    w.focus();
+}
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
-
-function handleQuit() {
+function handleQuit(): void {
     if (process.platform !== 'darwin') {
         app.quit();
     }
 }
 
-app.whenReady().then(() => {
-    tray = new Tray(
-        MAIN_WINDOW_VITE_DEV_SERVER_URL
-            ? path.join(__dirname, '../../app/public/logo.png')
-            : path.join(
-                  __dirname,
-                  `../renderer/${MAIN_WINDOW_VITE_NAME}/logo.png`,
-              ),
-    );
-    tray.setToolTip('Conan Chat Logger');
+// Installing / updating via Squirrel — exit immediately.
+if (started) {
+    app.quit();
+} else if (!app.requestSingleInstanceLock()) {
+    app.quit();
+} else {
+    let tray: Tray | null = null;
 
-    const contextMenu = Menu.buildFromTemplate([
-        { label: 'Quit', type: 'normal', click: handleQuit },
-    ]);
-    tray.setContextMenu(contextMenu);
-    tray.addListener('click', () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow();
-        } else {
-            BrowserWindow.getAllWindows()[0].focus();
+    loadSettings();
+
+    app.on('second-instance', focusOrCreateMainWindow);
+
+    app.whenReady().then(() => {
+        createWindow();
+
+        tray = new Tray(
+            MAIN_WINDOW_VITE_DEV_SERVER_URL
+                ? path.join(__dirname, '../../app/public/logo.png')
+                : path.join(
+                      __dirname,
+                      `../renderer/${MAIN_WINDOW_VITE_NAME}/logo.png`,
+                  ),
+        );
+        tray.setToolTip('Conan Chat Logger');
+
+        tray.setContextMenu(
+            Menu.buildFromTemplate([
+                { label: 'Quit', type: 'normal', click: handleQuit },
+            ]),
+        );
+        tray.addListener('click', () => focusOrCreateMainWindow());
+
+        checkAndInstallUpdate();
+    });
+
+    app.on('window-all-closed', () => {
+        if (!getSettings().closeToSystemTray) {
+            if (process.platform !== 'darwin') {
+                app.quit();
+            }
         }
     });
-});
 
-app.whenReady().then(() => {
-    if (!app.isPackaged || process.argv.includes('--squirrel-firstrun')) {
-        return;
-    }
-
-    autoUpdater.checkForUpdates();
-});
-
-autoUpdater.on('update-available', async () => {
-    // only needed when autoDownload = false
-    const result = await dialog.showMessageBox({
-        type: 'info',
-        buttons: ['Update now', 'Later'],
-        defaultId: 0,
-        cancelId: 1,
-        title: 'Update available',
-        message: 'A new version is available.',
+    app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0) {
+            createWindow();
+        }
     });
 
-    if (result.response === 0) {
-        autoUpdater.downloadUpdate();
-    }
-});
-
-autoUpdater.on('update-downloaded', async () => {
-    autoUpdater.quitAndInstall();
-});
-
-startServer();
+    startServer();
+}

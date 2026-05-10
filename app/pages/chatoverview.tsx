@@ -23,7 +23,7 @@ export function ChatOverview() {
     const [currentSessionData, setCurrentSessionData] = useState<SessionData>();
     const currentEntries = currentSessionData?.entries ?? [];
     const [search, setSearch] = useState('');
-    const [settings] = useState<Settings>();
+    const [settings, setSettings] = useState<Settings>();
     const [settingsOpen, setSettingsOpen] = useState(false);
     // const [autoUpdateDialogOpen, setAutoUpdateDialogOpen] = useState(false);
 
@@ -59,10 +59,9 @@ export function ChatOverview() {
 
     useEffect(() => {
         window.api.getSessions().then(setSessions);
-        /*  window.api.getSettings().then((loadedSettings) => {
+        window.api.getSettings().then((loadedSettings) => {
             setSettings(loadedSettings);
-            setAutoUpdateDialogOpen(loadedSettings.autoUpdate === undefined);
-        }); */
+        });
     }, [settingsOpen]);
 
     return (

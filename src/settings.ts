@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import { app } from 'electron';
+import path from 'path';
 
 export interface Settings {
     sessionGapMinutes: number;
@@ -42,9 +43,14 @@ let settings: Settings = {
     darkOocColor: '#8A8A8A',
 };
 
+const SETTINGS_PATH = path.join(
+    app.getPath('userData'),
+    'conan-chat-logger-config.json',
+);
+
 export async function loadSettings() {
     try {
-        const config = await fs.readFile(app.getPath('userData'), 'utf8');
+        const config = await fs.readFile(SETTINGS_PATH, 'utf8');
         const parsedSettings = JSON.parse(config);
         if (!parsedSettings.activeSession) {
             parsedSettings.activeSession = '';
@@ -60,7 +66,7 @@ async function saveSettings() {
         await fs.mkdir(settings.dataDir, { recursive: true });
     }
     await fs.writeFile(
-        app.getPath('userData'),
+        SETTINGS_PATH,
         JSON.stringify(settings, undefined, 2),
         'utf8',
     );

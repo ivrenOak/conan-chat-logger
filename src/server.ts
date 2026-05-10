@@ -35,6 +35,16 @@ export function startServer() {
             }
         });
 
+        server.once('error', (err: NodeJS.ErrnoException) => {
+            if (err.code === 'EADDRINUSE') {
+                console.warn(
+                    `[server] Port ${getSettings().port} already in use; HTTP server not started.`,
+                );
+                return;
+            }
+            console.error('[server]', err);
+        });
+
         server.listen(getSettings().port, 'localhost', () => {
             console.info(
                 `Server is running on http://localhost:${getSettings().port}/`,
