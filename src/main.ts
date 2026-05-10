@@ -34,7 +34,7 @@ function createWindow(): void {
     }
 
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
     mainWindow.removeMenu();
     mainWindow.on('close', () => {
         mainWindow.close();
