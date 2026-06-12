@@ -7,15 +7,20 @@ import {
 import { ModeToggle } from '@/components/mode-toggle';
 import { useEffect, useState } from 'react';
 import type { DateSessions } from '../../src/handler/handleSessions';
-import type { SessionData } from '../../src/handleMessage';
+import type { ChatEntry, SessionData } from '../../src/handleMessage';
 import { MessageItem } from '@/components/message-item';
 import { TitleDialog } from '@/components/title-dialog';
 import { AppSettings } from '@/components/settings';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { MessageSquareHeartIcon, SettingsIcon } from 'lucide-react';
+import {
+    MessageSquareHeartIcon,
+    PanelRightIcon,
+    SettingsIcon,
+} from 'lucide-react';
 import { Settings } from 'src/settings';
 import { FeedbackDialog } from '@/components/feedback-dialog';
+import { ParticipantsPanel } from '@/components/participants-panel';
 
 export function ChatOverview() {
     const [sessions, setSessions] = useState<DateSessions[]>([]);
@@ -26,6 +31,9 @@ export function ChatOverview() {
     const [settings, setSettings] = useState<Settings>();
     const [settingsOpen, setSettingsOpen] = useState(false);
     // const [autoUpdateDialogOpen, setAutoUpdateDialogOpen] = useState(false);
+    const [showParticipants, setShowParticipants] = useState(true);
+    const [selectedSenders, setSelectedSenders] = useState<string[]>([]);
+    const [selectedMentions, setSelectedMentions] = useState<string[]>([]);
 
     async function onEditMessageSave(
         sender: string,
@@ -53,6 +61,8 @@ export function ChatOverview() {
                 .getCurrentSessionData(currentSessionFile)
                 .then((data) => {
                     setCurrentSessionData(data);
+                    setSelectedSenders([]);
+                    setSelectedMentions([]);
                 });
         }
     }, [currentSessionFile]);
@@ -110,34 +120,6 @@ export function ChatOverview() {
                                         />
                                     )}
                             </p>
-                            <p
-                                className="text-sm text-muted-foreground overflow-hidden text-left"
-                                title={
-                                    currentEntries.length > 0
-                                        ? [
-                                              ...new Set(
-                                                  currentEntries.map(
-                                                      (entry) => entry.sender,
-                                                  ),
-                                              ),
-                                          ].join(', ')
-                                        : undefined
-                                }
-                                style={{
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: 2,
-                                    WebkitBoxOrient: 'vertical',
-                                }}
-                            >
-                                {currentEntries.length > 0 &&
-                                    [
-                                        ...new Set(
-                                            currentEntries.map(
-                                                (entry) => entry.sender,
-                                            ),
-                                        ),
-                                    ].join(', ')}
-                            </p>
                         </div>
                     </div>
                     <Dialog>
@@ -160,29 +142,71 @@ export function ChatOverview() {
                         <AppSettings open={settingsOpen} />
                     </Dialog>
                 </header>
-                <div className="flex-1 overflow-y-auto p-4">
-                    <MessageItem
-                        entries={currentEntries}
-                        search={search}
-                        emoteType={settings?.emoteType ?? 'noFormating'}
-                        onEditMessageSave={onEditMessageSave}
-                        sayColor={
-                            document.documentElement.classList.contains('dark')
-                                ? (settings?.darkSayColor ?? '#FFFFFF')
-                                : (settings?.sayColor ?? '#000000')
-                        }
-                        emoteColor={
-                            document.documentElement.classList.contains('dark')
-                                ? (settings?.darkEmoteColor ?? '#FDE68A')
-                                : (settings?.emoteColor ?? '#B45309')
-                        }
-                        oocColor={
-                            document.documentElement.classList.contains('dark')
-                                ? (settings?.darkOocColor ?? '#8A8A8A')
-                                : (settings?.oocColor ?? '#8A8A8A')
-                        }
-                    />
-                </div>
+                {currentEntries.length > 0 && (
+                    <>
+                        <div className="flex overflow-hidden">
+                            <div className="min-w-0 flex-1 overflow-y-auto p-4">
+                                <MessageItem
+                                    entries={currentEntries}
+                                    search={search}
+                                    emoteType={
+                                        settings?.emoteType ?? 'noFormating'
+                                    }
+                                    selectedSenders={selectedSenders}
+                                    selectedMentions={selectedMentions}
+                                    onEditMessageSave={onEditMessageSave}
+                                    sayColor={
+                                        document.documentElement.classList.contains(
+                                            'dark',
+                                        )
+                                            ? (settings?.darkSayColor ??
+                                              '#FFFFFF')
+                                            : (settings?.sayColor ?? '#000000')
+                                    }
+                                    emoteColor={
+                                        document.documentElement.classList.contains(
+                                            'dark',
+                                        )
+                                            ? (settings?.darkEmoteColor ??
+                                              '#FDE68A')
+                                            : (settings?.emoteColor ??
+                                              '#B45309')
+                                    }
+                                    oocColor={
+                                        document.documentElement.classList.contains(
+                                            'dark',
+                                        )
+                                            ? (settings?.darkOocColor ??
+                                              '#8A8A8A')
+                                            : (settings?.oocColor ?? '#8A8A8A')
+                                    }
+                                />
+                            </div>
+                            {showParticipants ? (
+                                <ParticipantsPanel
+                                    entries={currentEntries}
+                                    selectedSenders={selectedSenders}
+                                    onSelectedSendersChange={setSelectedSenders}
+                                    onHide={() => setShowParticipants(false)}
+                                    selectedMentions={selectedMentions}
+                                    onSelectedMentionsChange={
+                                        setSelectedMentions
+                                    }
+                                />
+                            ) : (
+                                <Button
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    onClick={() =>
+                                        setShowParticipants(!showParticipants)
+                                    }
+                                >
+                                    <PanelRightIcon />
+                                </Button>
+                            )}
+                        </div>
+                    </>
+                )}
             </SidebarInset>
         </SidebarProvider>
     );

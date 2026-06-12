@@ -19,22 +19,79 @@ type StyledMessageSegment = MessageSegment & {
     isParenthetical: boolean;
 };
 
-function highlightText(text: string, query: string) {
-    if (!query) return text;
-    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(${escapedQuery})`, 'gi');
+function highlightText(
+    text: string,
+    selectedMentions: string[],
+    query: string,
+) {
+    if (selectedMentions.length === 0 && !query) {
+        return text;
+    }
 
-    const parts = text.split(regex);
+    const mentionPattern =
+        selectedMentions.length > 0
+            ? [...selectedMentions]
+                  .sort((a, b) => b.length - a.length)
+                  .map(
+                      (name) =>
+                          `@${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`,
+                  )
+                  .join('|')
+            : null;
 
-    return parts.map((part, i) =>
-        regex.test(part) ? (
-            <mark key={i} style={{ backgroundColor: 'yellow' }}>
-                {part}
-            </mark>
-        ) : (
-            part
-        ),
-    );
+    const isMentionPart = (part: string) =>
+        selectedMentions.some(
+            (name) => part.toLowerCase() === `@${name.toLowerCase()}`,
+        );
+
+    const isSearchPart = (part: string) =>
+        query.length > 0 && part.toLowerCase() === query.toLowerCase();
+
+    const mentionParts = mentionPattern
+        ? text.split(new RegExp(`(${mentionPattern})`, 'gi'))
+        : [text];
+
+    const searchPattern = query
+        ? query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        : null;
+
+    return mentionParts.flatMap((mentionPart, mentionIndex) => {
+        const isMention = isMentionPart(mentionPart);
+
+        if (!searchPattern) {
+            return isMention ? (
+                <mark key={mentionIndex} style={{ backgroundColor: 'orange' }}>
+                    {mentionPart}
+                </mark>
+            ) : (
+                mentionPart
+            );
+        }
+
+        return mentionPart
+            .split(new RegExp(`(${searchPattern})`, 'gi'))
+            .map((part, searchIndex) => {
+                const key = `${mentionIndex}-${searchIndex}`;
+
+                if (isSearchPart(part)) {
+                    return (
+                        <mark key={key} style={{ backgroundColor: 'yellow' }}>
+                            {part}
+                        </mark>
+                    );
+                }
+
+                if (isMention) {
+                    return (
+                        <mark key={key} style={{ backgroundColor: 'red' }}>
+                            {part}
+                        </mark>
+                    );
+                }
+
+                return part;
+            });
+    });
 }
 
 function splitMessage(
@@ -156,6 +213,8 @@ type MessageItemProps = {
     search?: string;
     showNumbers?: boolean;
     emoteType?: Settings['emoteType'];
+    selectedSenders?: string[];
+    selectedMentions?: string[];
     sayColor?: string;
     emoteColor?: string;
     oocColor?: string;
@@ -167,6 +226,8 @@ export function MessageItem({
     search = '',
     showNumbers = false,
     emoteType = 'noFormating',
+    selectedSenders = [],
+    selectedMentions = [],
     sayColor,
     emoteColor,
     oocColor,
@@ -199,11 +260,20 @@ export function MessageItem({
         return nextSenderColor;
     }, [entries]);
 
+    const visibleEntries = useMemo(() => {
+        if (selectedSenders.length === 0) {
+            return entries;
+        }
+        return entries.filter((entry) =>
+            selectedSenders.includes(entry.sender),
+        );
+    }, [entries, selectedSenders]);
+
     if (!locale) return;
 
     return (
         <ItemGroup className="max-w-3xl overflow-y-auto">
-            {entries.map((child, index) => {
+            {visibleEntries.map((child, index) => {
                 return (
                     <div
                         key={`message-${index}`}
@@ -329,6 +399,7 @@ export function MessageItem({
                                                 >
                                                     {highlightText(
                                                         segment.text,
+                                                        selectedMentions,
                                                         search,
                                                     )}
                                                 </span>
