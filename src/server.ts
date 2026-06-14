@@ -2,6 +2,17 @@ import http from 'node:http';
 import { saveMessage } from './handleMessage';
 import { getSettings } from './settings';
 
+let saveQueue = Promise.resolve();
+
+export function saveMessageSerialized(
+    sender?: string,
+    message?: string,
+): Promise<void> {
+    saveQueue = saveQueue.then(() => saveMessage(sender, message));
+
+    return saveQueue;
+}
+
 export function startServer() {
     try {
         const server = http.createServer(async (req, res) => {
@@ -21,7 +32,7 @@ export function startServer() {
             }
             console.info('Received request', req.url, req.method, req.headers);
             try {
-                await saveMessage(
+                await saveMessageSerialized(
                     url.searchParams.get('sender') ?? undefined,
                     url.searchParams.get('message') ?? undefined,
                 );

@@ -20,7 +20,76 @@ export type SessionData = {
     entries: ChatEntry[];
 };
 
+function isValidChatEntry(value: unknown): value is ChatEntry {
+    if (!value || typeof value !== 'object') {
+        return false;
+    }
+
+    const entry = value as ChatEntry;
+    return (
+        typeof entry.timestamp === 'string' &&
+        typeof entry.sender === 'string' &&
+        typeof entry.message === 'string'
+    );
+}
+
+function isValidSessionMetadata(value: unknown): value is SessionMetadata {
+    if (!value || typeof value !== 'object') {
+        return false;
+    }
+
+    const session = value as SessionMetadata;
+    return (
+        typeof session.notes === 'string' &&
+        typeof session.title === 'string' &&
+        typeof session.createdAt === 'string' &&
+        typeof session.updatedAt === 'string'
+    );
+}
+
+export function isValidSessionData(value: unknown): value is SessionData {
+    if (!value || typeof value !== 'object') {
+        return false;
+    }
+
+    const data = value as SessionData;
+    return (
+        isValidSessionMetadata(data.session) &&
+        Array.isArray(data.entries) &&
+        data.entries.every(isValidChatEntry)
+    );
+}
+
 export const SESSION_FILE_PATTERN = /^\d{8}(?:\(\d+\))?-\w+(?:-\w+)*\.json$/;
+
+export async function readSessionFile(
+    filename: string,
+): Promise<SessionData | undefined> {
+    if (!SESSION_FILE_PATTERN.test(filename)) {
+        return undefined;
+    }
+
+    return readSessionFileByPath(path.join(getSettings().dataDir, filename));
+}
+
+export async function readSessionFileByPath(
+    filePath: string,
+): Promise<SessionData | undefined> {
+    try {
+        const data = await fs.readFile(filePath, 'utf8');
+        const parsed: unknown = JSON.parse(data);
+
+        if (!isValidSessionData(parsed)) {
+            console.error(`Invalid session file structure: ${filePath}`);
+            return undefined;
+        }
+
+        return parsed;
+    } catch (error) {
+        console.error(`Failed to read session file: ${filePath}`, error);
+        return undefined;
+    }
+}
 
 export async function saveMessage(
     sender: string | undefined,
@@ -41,29 +110,21 @@ export async function saveMessage(
     let lastSessionData: SessionData | null = null;
 
     if (activeSession !== '') {
-        try {
-            lastSessionPath = path.join(getSettings().dataDir, activeSession);
+        lastSessionPath = path.join(getSettings().dataDir, activeSession);
+        lastSessionData =
+            (await readSessionFileByPath(lastSessionPath)) ?? null;
 
-            if (lastSessionPath) {
-                const existingContent = await fs.readFile(
-                    lastSessionPath,
-                    'utf8',
-                );
-                lastSessionData = JSON.parse(existingContent) as SessionData;
-                if (
-                    timestamp.getTime() -
-                        new Date(
-                            JSON.parse(existingContent).session.updatedAt,
-                        ).getTime() >
-                    getSettings().sessionGapMinutes * 60 * 1000
-                ) {
-                    lastSessionPath = null;
-                    lastSessionData = null;
-                }
+        if (lastSessionData) {
+            if (
+                timestamp.getTime() -
+                    new Date(lastSessionData.session.updatedAt).getTime() >
+                getSettings().sessionGapMinutes * 60 * 1000
+            ) {
+                lastSessionPath = null;
+                lastSessionData = null;
             }
-        } catch (error) {
+        } else {
             lastSessionPath = null;
-            lastSessionData = null;
         }
     }
 

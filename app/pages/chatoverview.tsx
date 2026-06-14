@@ -7,7 +7,7 @@ import {
 import { ModeToggle } from '@/components/mode-toggle';
 import { useEffect, useState } from 'react';
 import type { DateSessions } from '../../src/handler/handleSessions';
-import type { ChatEntry, SessionData } from '../../src/handleMessage';
+import type { SessionData } from '../../src/handleMessage';
 import { MessageItem } from '@/components/message-item';
 import { TitleDialog } from '@/components/title-dialog';
 import { AppSettings } from '@/components/settings';
@@ -91,9 +91,12 @@ export function ChatOverview() {
                         <SidebarTrigger />
                         <div className="min-w-0">
                             <p className="flex items-center gap-1 text-left text-lg font-semibold">
-                                {currentSessionData?.session.title
-                                    ? currentSessionData.session.title
-                                    : 'No session selected'}
+                                {currentSessionData === undefined &&
+                                currentSessionFile !== undefined
+                                    ? 'Error loading session'
+                                    : currentSessionData?.session.title
+                                      ? currentSessionData.session.title
+                                      : 'No session selected'}
                                 {currentSessionData?.session.title &&
                                     currentSessionFile && (
                                         <TitleDialog
@@ -142,6 +145,13 @@ export function ChatOverview() {
                         <AppSettings open={settingsOpen} />
                     </Dialog>
                 </header>
+                {currentSessionData === undefined &&
+                    currentSessionFile !== undefined && (
+                        <p className="mt-4 ml-4">
+                            The session file seems to be corrupted. Please check
+                            the file and try again. It has to be valid JSON.
+                        </p>
+                    )}
                 {currentEntries.length > 0 && (
                     <>
                         <div className="flex overflow-hidden">

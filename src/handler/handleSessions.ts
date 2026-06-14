@@ -4,6 +4,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import {
     createSessionPath,
+    readSessionFile,
     SESSION_FILE_PATTERN,
     type ChatEntry,
     type SessionData,
@@ -30,11 +31,7 @@ ipcMain.handle('get-current-session-data', async (event, filename: string) => {
         console.error('Session file not found');
         return undefined;
     }
-    const data = await fs.readFile(
-        path.join(getSettings().dataDir, filename),
-        'utf8',
-    );
-    return JSON.parse(data) as SessionData;
+    return readSessionFile(filename);
 });
 
 ipcMain.handle(
@@ -45,11 +42,11 @@ ipcMain.handle(
             return;
         }
 
-        const data = await fs.readFile(
-            path.join(getSettings().dataDir, filename),
-            'utf8',
-        );
-        const parsed = JSON.parse(data) as SessionData;
+        const parsed = await readSessionFile(filename);
+        if (!parsed) {
+            console.error('Session file could not be read');
+            return;
+        }
         parsed.session.notes = notes;
         await fs.writeFile(
             path.join(getSettings().dataDir, filename),
@@ -67,11 +64,11 @@ ipcMain.handle(
             return;
         }
 
-        const data = await fs.readFile(
-            path.join(getSettings().dataDir, filename),
-            'utf8',
-        );
-        const parsed = JSON.parse(data) as SessionData;
+        const parsed = await readSessionFile(filename);
+        if (!parsed) {
+            console.error('Session file could not be read');
+            return;
+        }
         parsed.session.title = title;
         await fs.writeFile(
             path.join(getSettings().dataDir, filename),
@@ -88,11 +85,10 @@ ipcMain.handle('filter-sessions-by-search', async (event, search: string) => {
     for (const dateSessions of sessions) {
         const matches = await Promise.all(
             dateSessions.sessions.map(async (session) => {
-                const data = await fs.readFile(
-                    path.join(getSettings().dataDir, session.filename),
-                    'utf8',
-                );
-                const parsed = JSON.parse(data) as SessionData;
+                const parsed = await readSessionFile(session.filename);
+                if (!parsed) {
+                    return false;
+                }
                 return parsed.entries.some((entry) =>
                     entry.message.toLowerCase().includes(normalizedSearch),
                 );
@@ -145,11 +141,11 @@ ipcMain.handle(
         }
 
         let files = await fs.readdir(getSettings().dataDir);
-        const data = await fs.readFile(
-            path.join(getSettings().dataDir, filename),
-            'utf8',
-        );
-        const parsed = JSON.parse(data) as SessionData;
+        const parsed = await readSessionFile(filename);
+        if (!parsed) {
+            console.error('Session file could not be read');
+            return;
+        }
         const session1 = {
             ...parsed,
             entries: parsed.entries.slice(0, splitAfter),
@@ -205,15 +201,18 @@ ipcMain.handle(
             return undefined;
         }
 
-        const sessionsData = await Promise.all(
-            existingFilenames.map(async (filename) => {
-                const data = await fs.readFile(
-                    path.join(getSettings().dataDir, filename),
-                    'utf8',
-                );
-                return JSON.parse(data) as SessionData;
-            }),
-        );
+        const sessionsData = (
+            await Promise.all(
+                existingFilenames.map((filename) => readSessionFile(filename)),
+            )
+        ).filter((sessionData): sessionData is SessionData => {
+            return sessionData !== undefined;
+        });
+
+        if (sessionsData.length === 0) {
+            console.error('No readable session files were provided');
+            return undefined;
+        }
 
         const mergedEntries = sessionsData
             .flatMap((sessionData) => sessionData.entries)
@@ -294,8 +293,11 @@ ipcMain.handle(
             return undefined;
         }
         const oldPath = path.join(getSettings().dataDir, filename);
-        const data = await fs.readFile(oldPath, 'utf8');
-        const parsed = JSON.parse(data) as SessionData;
+        const parsed = await readSessionFile(filename);
+        if (!parsed) {
+            console.error('Session file could not be read');
+            return undefined;
+        }
         if (index < 0 || index >= parsed.entries.length) {
             console.error('Index out of range');
             return undefined;
@@ -373,11 +375,11 @@ ipcMain.handle(
             console.error('Session file not found');
             return;
         }
-        const data = await fs.readFile(
-            path.join(getSettings().dataDir, filename),
-            'utf8',
-        );
-        const parsed = JSON.parse(data) as SessionData;
+        const parsed = await readSessionFile(filename);
+        if (!parsed) {
+            console.error('Session file could not be read');
+            return;
+        }
         let lastAdjusted: Date | undefined;
         for (const entry of parsed.entries) {
             const newDate = new Date(entry.timestamp);
@@ -588,23 +590,35 @@ async function getSessions(): Promise<DateSessions[]> {
     const dataDir = getSettings().dataDir;
 
     for (const dateSessions of sessionsByDate) {
-        const ordered = await Promise.all(
-            dateSessions.sessions.map(async (session) => {
-                const stat = await fs.stat(
-                    path.join(dataDir, session.filename),
-                );
-                const createdMs =
-                    stat.birthtimeMs > 0
-                        ? stat.birthtimeMs
-                        : stat.ctimeMs || stat.mtimeMs;
-                return { session, sortKey: createdMs };
-            }),
-        );
+        const ordered = (
+            await Promise.all(
+                dateSessions.sessions.map(async (session) => {
+                    try {
+                        const stat = await fs.stat(
+                            path.join(dataDir, session.filename),
+                        );
+                        const createdMs =
+                            stat.birthtimeMs > 0
+                                ? stat.birthtimeMs
+                                : stat.ctimeMs || stat.mtimeMs;
+                        return { session, sortKey: createdMs };
+                    } catch (error) {
+                        console.error(
+                            `Failed to stat session file: ${session.filename}`,
+                            error,
+                        );
+                        return undefined;
+                    }
+                }),
+            )
+        ).filter((entry) => entry !== undefined);
         ordered.sort((a, b) => b.sortKey - a.sortKey);
         dateSessions.sessions = ordered.map(({ session }) => session);
     }
 
     sessionsByDate.sort((a, b) => b.date.getTime() - a.date.getTime());
 
-    return sessionsByDate;
+    return sessionsByDate.filter(
+        (dateSessions) => dateSessions.sessions.length > 0,
+    );
 }

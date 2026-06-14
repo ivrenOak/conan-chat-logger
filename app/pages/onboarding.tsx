@@ -19,7 +19,7 @@ import {
     settingsText,
     WebhookSetupField,
 } from '@/components/settings-fields';
-  
+
 export function Onboarding(props: {
     settings: Settings;
     setSettings: (settings: Settings) => void;
