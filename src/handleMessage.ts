@@ -170,8 +170,11 @@ export async function saveMessage(
         newSessionPath = lastSessionPath;
         if (!senders.includes(safeSender)) {
             senders.push(safeSender);
-            newSessionPath = createSessionPath(files, senders, date);
-            await fs.rename(lastSessionPath, newSessionPath);
+            const nextSessionPath = createSessionPath(files, senders, date);
+            if (nextSessionPath !== lastSessionPath) {
+                await fs.rename(lastSessionPath, nextSessionPath);
+            }
+            newSessionPath = nextSessionPath;
         }
         await fs.writeFile(
             newSessionPath,
@@ -188,9 +191,17 @@ export function createSessionPath(
     date: string,
 ): string {
     let counter = 1;
-    let sessionName = `${date}-${senders.join('-')}.json`;
+    let senderNames = '';
+    for (const sender of senders) {
+        const next = senderNames ? `${senderNames}-${sender}` : sender;
+        if (next.length > 100) {
+            break;
+        }
+        senderNames = next;
+    }
+    let sessionName = `${date}-${senderNames}.json`;
     while (files.includes(sessionName)) {
-        sessionName = `${date}(${counter})-${senders.join('-')}.json`;
+        sessionName = `${date}(${counter})-${senderNames}.json`;
         counter++;
     }
     return path.join(getSettings().dataDir, sessionName);

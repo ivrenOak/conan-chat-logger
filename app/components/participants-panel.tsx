@@ -57,11 +57,7 @@ export function ParticipantsPanel({
             <Separator />
             <div className="flex flex-col gap-3 py-2">
                 {participants.map((sender) => (
-                    <p
-                        key={sender}
-                        className="truncate rounded-md text-sm"
-                        title={sender}
-                    >
+                    <p key={sender} className="text-sm" title={sender}>
                         {sender}
                     </p>
                 ))}
@@ -109,7 +105,7 @@ export function ParticipantsPanel({
                     </ComboboxContent>
                 </Combobox>
             </Field>
-            <Field className="text-muted-foreground mt-2">
+            <Field className="text-muted-foreground mt-5">
                 <FieldLabel>Highlight mentions</FieldLabel>
                 <Combobox
                     multiple
