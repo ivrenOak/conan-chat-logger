@@ -40,3 +40,7 @@ Have you found a bug? Please report it in the issues tab.
 Do you have questions or feature requests? Also if you don't have anything specific to say I'd love to hear back from you. Feedback is highly appreciated.
 
 Join my [Discord](https://discord.gg/GkzYNKvjPJ) and feel free to message me.
+
+## Disclaimer
+
+This tool is for personal chat logging only. Please be aware that in most cases it can't be used to submit logs to tickets on servers. Because both the message content and sender details can be modified, there is no assurance that the original message has not been changed.
